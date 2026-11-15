@@ -406,7 +406,6 @@
     b.size = Math.min(CFG.maxSize, b.size + CFG.emberGrow);
     g.peakSize = Math.max(g.peakSize, b.size);
     burst(p.x, p.y, 10, 160, fire, 0.5);
-    floater('+' + gain, p.x, p.y - 20, '#e8a35a', 20);
     Audio.ember(g.streak);
   }
 
