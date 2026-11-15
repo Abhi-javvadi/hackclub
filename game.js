@@ -73,12 +73,15 @@
   }
 
   // Obstacles: "2d obstacle collection" by Game Developer Studio (Robert Brooks), CC-BY 4.0, OpenGameArt.
-  // Hanging spike blocks on chains and rotating saw blades. The chain is the pack's own
-  // chain piece repeated end to end at draw time, so longer chains never need new artwork.
-  const TRAPS = { names: ['block_1', 'block_2', 'chain', 'blade_1', 'blade_2', 'blade_3'], img: {}, loaded: 0,
+  // Hanging spike blocks, a swinging crescent blade, a spiked log on two chains, saw blades on posts,
+  // and free saw blades. Every chain is the pack's single chain piece drawn scaled to the needed length.
+  const TRAPS = { names: ['block_1', 'block_2', 'chain', 'blade_1', 'blade_2', 'blade_3', 'swing_blade', 'spike_stick', 'post_med', 'post_small', 'nut'], img: {}, loaded: 0,
     get ready() { return this.loaded === this.names.length; } };
   for (const n of TRAPS.names) { const im = new Image(); im.onload = () => { TRAPS.loaded++; }; im.src = `assets/traps/${n}.png`; TRAPS.img[n] = im; }
-  const CHAIN_ASPECT = 440 / 54, CHAIN_OVERLAP = 0.12;   // links overlap slightly so the seam between pieces hides
+  function drawChain(x, y0, len, cw) {
+    // one chain piece, resized to exactly the chain length (no tiling, no new art)
+    ctx.drawImage(TRAPS.img.chain, x - cw / 2, y0, cw, len);
+  }
 
   // Lava floor: "animated lava 16x32" (CC0, OpenGameArt). Eight 16x32 frames in one 128x32 strip,
   // tiled along the bottom of the screen at 3x and scrolled with the world.
@@ -224,17 +227,31 @@
 
   function spawnObstacle() {
     const g = game, r = Math.random(), tier = Math.min(1, g.t / 60);
-    if (r < 0.55) {
-      // spike block hanging from the ceiling on a chain
+    const chainLen = () => 40 + Math.random() * (130 + tier * 50);
+    if (r < 0.26) {
+      // spike block hanging from the ceiling
       const variant = Math.random() < 0.5 ? 'block_1' : 'block_2';
-      const bw = 92 + Math.random() * 56;
-      const bh = bw * (variant === 'block_1' ? 320 / 284 : 320 / 267);
-      const chain = 20 + Math.random() * (90 + tier * 40);
-      const cw = Math.max(26, bw * 0.24);
-      g.obstacles.push({ type: 'hang', variant, x: W + 80, y: 0, w: bw, h: chain + bh, bw, bh, chain, cw,
+      const bw = 92 + Math.random() * 56, bh = bw * (variant === 'block_1' ? 320 / 284 : 320 / 267), chain = chainLen();
+      g.obstacles.push({ type: 'hang', variant, x: W + 80, y: 0, w: bw, h: chain + bh, bw, bh, chain, cw: Math.max(26, bw * 0.24),
         phase: Math.random() * 6.28, sway: 0.08 + Math.random() * 0.08, cx: 0, cy: 0 });
+    } else if (r < 0.44) {
+      // swinging crescent blade: wider swing, lethal part is the blade below the hook
+      const bw = 150 + Math.random() * 70, bh = bw * 249 / 320, chain = chainLen();
+      g.obstacles.push({ type: 'swing', variant: 'swing_blade', x: W + 80, y: 0, w: bw, h: chain + bh, bw, bh, chain, cw: Math.max(26, bw * 0.16),
+        phase: Math.random() * 6.28, sway: 0.28 + Math.random() * 0.18, cx: 0, cy: 0 });
+    } else if (r < 0.6) {
+      // spiked log hung level from two chains
+      const sw = 230 + Math.random() * 110, sh = sw * 111 / 480, chain = chainLen();
+      g.obstacles.push({ type: 'log', variant: 'spike_stick', x: W + 80, y: 0, w: sw, h: chain + sh, sw, sh, chain, cw: Math.max(22, sw * 0.08) });
+    } else if (r < 0.8) {
+      // saw blade on a wooden post rising from the floor
+      const post = Math.random() < 0.5 ? 'post_med' : 'post_small';
+      const pw = 46 + Math.random() * 16, ph = pw * (post === 'post_med' ? 400 / 84 : 260 / 116) * (0.8 + Math.random() * 0.5 + tier * 0.3);
+      const bs = 110 + Math.random() * 50;
+      g.obstacles.push({ type: 'post', variant: post, blade: 'blade_' + (1 + Math.floor(Math.random() * 3)), x: W + 80, y: GROUND - ph, w: Math.max(pw, bs), h: ph, pw, ph, bs,
+        spin: Math.random() * 6.28, spinV: (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 3) });
     } else {
-      // rotating saw blade
+      // free rotating saw blade
       const s = 76 + Math.random() * 60;
       g.obstacles.push({ type: 'blade', variant: 'blade_' + (1 + Math.floor(Math.random() * 3)), x: W + 80, y: 110 + Math.random() * (GROUND - 220 - s), w: s, h: s,
         spin: Math.random() * 6.28, spinV: (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 3) });
@@ -289,10 +306,10 @@
 
     for (const o of g.obstacles) {
       o.x -= (g.speed + (o.extraSpeed || 0)) * dt;
-      if (o.type === 'blade') o.spin += o.spinV * dt;
-      if (o.type === 'hang') {
-        o.phase += dt * 1.7;
-        const ang = Math.sin(o.phase) * o.sway, len = o.chain + o.bh * 0.5;
+      if (o.type === 'blade' || o.type === 'post') o.spin += o.spinV * dt;
+      if (o.type === 'hang' || o.type === 'swing') {
+        o.phase += dt * (o.type === 'swing' ? 1.3 : 1.7);
+        const ang = Math.sin(o.phase) * o.sway, len = o.chain + o.bh * (o.type === 'swing' ? 0.62 : 0.5);
         o.cx = o.x + o.w / 2 + Math.sin(ang) * len; o.cy = Math.cos(ang) * len; o.ang = ang;
       }
     }
@@ -337,6 +354,17 @@
           let hit = false;
           if (o.type === 'hang') {
             hit = Math.hypot(o.cx - b.x, o.cy - b.y) < hb + o.bw * 0.44;   // the block is lethal, the chain is not
+          } else if (o.type === 'swing') {
+            hit = Math.hypot(o.cx - b.x, o.cy - b.y) < hb + o.bw * 0.4;
+          } else if (o.type === 'log') {
+            const x0 = o.x + o.sw * 0.06, x1 = o.x + o.sw * 0.94, y0 = o.chain + o.sh * 0.2, y1 = o.chain + o.sh * 0.8;
+            const cx = Math.max(x0, Math.min(b.x, x1)), cy = Math.max(y0, Math.min(b.y, y1));
+            hit = Math.hypot(cx - b.x, cy - b.y) < hb;
+          } else if (o.type === 'post') {
+            const px = o.x + o.w / 2, top = o.y;
+            const bladeHit = Math.hypot(px - b.x, top - b.y) < hb + o.bs / 2 * 0.86;
+            const cx = Math.max(px - o.pw * 0.4, Math.min(b.x, px + o.pw * 0.4)), cy = Math.max(top, Math.min(b.y, GROUND));
+            hit = bladeHit || Math.hypot(cx - b.x, cy - b.y) < hb;
           } else {
             const cx = o.x + o.w / 2, cy = o.y + o.h / 2;
             hit = Math.hypot(cx - b.x, cy - b.y) < hb + o.w / 2 * 0.86;
@@ -494,18 +522,32 @@
     }
 
     for (const o of g.obstacles) {
-      if (o.type === 'hang') {
+      if (o.type === 'hang' || o.type === 'swing') {
         ctx.save(); ctx.translate(o.x + o.w / 2, 0); ctx.rotate(o.ang || 0);
         if (TRAPS.ready) {
           ctx.imageSmoothingEnabled = true;
-          // chain: repeat the single chain piece downward until it reaches the block's hook
-          const ph = o.cw * CHAIN_ASPECT, step = ph * (1 - CHAIN_OVERLAP);
-          ctx.save(); ctx.beginPath(); ctx.rect(-o.cw, -10, o.cw * 2, o.chain + 12); ctx.clip();
-          for (let yy = -6; yy < o.chain + 2; yy += step) ctx.drawImage(TRAPS.img.chain, -o.cw / 2, yy, o.cw, ph);
-          ctx.restore();
+          drawChain(0, -4, o.chain + 6, o.cw);
           ctx.drawImage(TRAPS.img[o.variant], -o.bw / 2, o.chain - 2, o.bw, o.bh);
         } else { ctx.fillStyle = '#4a2a35'; ctx.fillRect(-3, 0, 6, o.chain); ctx.fillRect(-o.bw / 2, o.chain, o.bw, o.bh); }
         ctx.restore();
+      } else if (o.type === 'log') {
+        if (TRAPS.ready) {
+          ctx.imageSmoothingEnabled = true;
+          // the log's two rings sit at about 31% and 65% of its width
+          drawChain(o.x + o.sw * 0.31, -4, o.chain + 10, o.cw);
+          drawChain(o.x + o.sw * 0.65, -4, o.chain + 10, o.cw);
+          ctx.drawImage(TRAPS.img[o.variant], o.x, o.chain, o.sw, o.sh);
+        } else { ctx.fillStyle = '#4a2a35'; ctx.fillRect(o.x, o.chain, o.sw, o.sh); }
+      } else if (o.type === 'post') {
+        const px = o.x + o.w / 2;
+        if (TRAPS.ready) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.drawImage(TRAPS.img[o.variant], px - o.pw / 2, o.y, o.pw, o.ph + 8);
+          ctx.save(); ctx.translate(px, o.y); ctx.rotate(o.spin);
+          ctx.drawImage(TRAPS.img[o.blade], -o.bs / 2, -o.bs / 2, o.bs, o.bs);
+          ctx.restore();
+          ctx.drawImage(TRAPS.img.nut, px - o.bs * 0.11, o.y - o.bs * 0.11, o.bs * 0.22, o.bs * 0.22);
+        } else { ctx.fillStyle = '#4a2a35'; ctx.fillRect(px - o.pw / 2, o.y, o.pw, o.ph); }
       } else if (o.type === 'blade') {
         ctx.save(); ctx.translate(o.x + o.w / 2, o.y + o.h / 2); ctx.rotate(o.spin);
         if (TRAPS.ready) { ctx.imageSmoothingEnabled = true; ctx.drawImage(TRAPS.img[o.variant], -o.w / 2, -o.h / 2, o.w, o.h); }

@@ -14,8 +14,9 @@
 - `traps/` — "2d obstacle collection" by Game Developer Studio (Robert Brooks), licensed
   CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
   Source: https://opengameart.org/content/2d-obstacle-collection
-  Used: swinging_spike_block, swinging_spike_block_2, long_chain_piece, blade_1, blade_2, blade_3. Files were downscaled; no other changes. Longer chains in the game
-  are the original chain piece repeated end to end at draw time.
+  Used: swinging_spike_block, swinging_spike_block_2, swinging_blade, swinging_spike_stick,
+  long_chain_piece, med_post, small_post, nut_over_top_over_wood, blade_1, blade_2, blade_3. Files were downscaled; no other changes. Chains in the game are the
+  original chain piece resized to the needed length at draw time.
 
 - `lava/lava_strip8.png` — "animated lava 16x32", CC0 (public domain).
   Source: https://opengameart.org/content/animated-lava-16x32
