@@ -7,7 +7,7 @@
   // ---------------------------------------------------------------- config
   const CFG = {
     runSeconds: 90,
-    lives: 3,               // run ends when these are gone, whatever the clock says
+    lives: 5,               // run ends when these are gone, whatever the clock says
     worldSpeed: 380,        // px/s at start
     speedRamp: 5,           // px/s gained per second
     rebirthSpeedBoost: 55,  // px/s gained per rebirth
@@ -21,7 +21,6 @@
     maxSize: 2.6,
     emberGrow: 0.07,
     emberValue: 10,         // × size × heat
-    goldValue: 60,
     heatPerRebirth: 0.5,    // Heat multiplier grows by this per rebirth
     rebirthDelay: 1.5,
     graceSeconds: 2.5,      // invulnerable + magnet + double embers after rebirth
@@ -270,13 +269,13 @@
     }
   }
   function spawnEmber() {
-    const g = game, gold = Math.random() < 0.06;
-    // sometimes spawn a short arc of embers to encourage a path
-    if (!gold && Math.random() < 0.3) {
+    const g = game, gold = false;   // single coin type
+    // sometimes spawn a short arc of coins to encourage a path
+    if (Math.random() < 0.3) {
       const y0 = 120 + Math.random() * (GROUND - 260), dir = Math.random() < 0.5 ? 1 : -1;
       for (let i = 0; i < 5; i++) g.pickups.push({ x: W + 40 + i * 46, y: y0 + Math.sin(i * 0.7) * 60 * dir, r: 11, gold: false, phase: i * 0.5 });
     } else {
-      g.pickups.push({ x: W + 40, y: 90 + Math.random() * (GROUND - 180), r: gold ? 14 : 11, gold, phase: Math.random() * 6.28 });
+      g.pickups.push({ x: W + 40, y: 90 + Math.random() * (GROUND - 180), r: 11, gold, phase: Math.random() * 6.28 });
     }
   }
 
@@ -401,14 +400,14 @@
     const g = game, b = g.bird;
     g.streak++; g.bestStreak = Math.max(g.bestStreak, g.streak);
     const graceMult = b.grace > 0 ? 2 : 1;
-    const base = p.gold ? CFG.goldValue : CFG.emberValue;
+    const base = CFG.emberValue;
     const gain = Math.round(base * b.size * g.heat * graceMult);
     g.score += gain; g.embers++;
-    b.size = Math.min(CFG.maxSize, b.size + CFG.emberGrow * (p.gold ? 3 : 1));
+    b.size = Math.min(CFG.maxSize, b.size + CFG.emberGrow);
     g.peakSize = Math.max(g.peakSize, b.size);
-    burst(p.x, p.y, p.gold ? 24 : 10, p.gold ? 260 : 160, p.gold ? goldC : fire, 0.5);
-    floater('+' + gain, p.x, p.y - 20, p.gold ? '#ffe08a' : '#e8a35a', p.gold ? 30 : 20);
-    if (p.gold) Audio.gold(); else Audio.ember(g.streak);
+    burst(p.x, p.y, 10, 160, fire, 0.5);
+    floater('+' + gain, p.x, p.y - 20, '#e8a35a', 20);
+    Audio.ember(g.streak);
   }
 
   function crash() {
@@ -457,7 +456,7 @@
     Audio.finish();
   }
   function rankTitle(g) {
-    if (g.over) return 'BURNED OUT. Three falls is all the cave allows.';
+    if (g.over) return 'BURNED OUT. Five falls is all the cave allows.';
     if (g.rebirths === 0) return 'UNTOUCHED. But you never got hotter.';
     if (g.rebirths >= 8) return 'ETERNAL FLAME. Nothing keeps you down.';
     if (g.peakSize >= 2.2) return 'INFERNO. You grew into something huge.';
@@ -564,16 +563,8 @@
     }
 
     for (const p of g.pickups) {
-      if (COIN.ready) {
-        if (p.gold) {
-          const rr = p.r * 2.6, gr = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, rr);
-          gr.addColorStop(0, 'rgba(255,240,170,0.8)'); gr.addColorStop(1, 'rgba(255,200,0,0)');
-          ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, 6.28); ctx.fill();
-        }
-        drawCoin(p.x, p.y, p.r * (p.gold ? 3.4 : 2.9), g.t, p.phase);
-      } else {
-        ctx.fillStyle = p.gold ? '#fff8d0' : '#d98c3a'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill();
-      }
+      if (COIN.ready) drawCoin(p.x, p.y, p.r * 2.9, g.t, p.phase);
+      else { ctx.fillStyle = '#d98c3a'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }
     }
 
     for (const p of g.particles) { ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (p.life / p.max), 0, 6.28); ctx.fill(); }
