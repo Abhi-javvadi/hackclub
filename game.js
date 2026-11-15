@@ -405,7 +405,6 @@
     g.score += gain; g.embers++;
     b.size = Math.min(CFG.maxSize, b.size + CFG.emberGrow);
     g.peakSize = Math.max(g.peakSize, b.size);
-    burst(p.x, p.y, 10, 160, fire, 0.5);
     Audio.ember(g.streak);
   }
 
