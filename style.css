@@ -77,7 +77,6 @@ canvas {
 .stats td { padding: 3px 0; font-size: 24px; }
 .stats td:first-child { color: rgba(255,233,199,0.6); padding-right: 32px; }
 .stats td:last-child { color: var(--amber); text-align: right; font-variant-numeric: tabular-nums; }
-.rank { margin: 22px 0 0; font-size: 24px; color: var(--cream); }
 @keyframes pulse { 50% { opacity: 0.55; } }
 [hidden] { display: none !important; }
 @media (max-width: 700px) {
@@ -88,5 +87,5 @@ canvas {
   #timer-bar { width: 120px; }
   #hud-time { font-size: 20px; }
   .hud-left, .hud-right { min-width: 0; }
-  .rules, .keys, .stats, .rank { font-size: 19px; }
+  .rules, .keys, .stats { font-size: 19px; }
 }

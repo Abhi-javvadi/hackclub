@@ -40,7 +40,7 @@
     title: $('title'), results: $('results'), paused: $('paused'),
     startBtn: $('start-btn'), againBtn: $('again-btn'),
     resScore: $('res-score'), resBest: $('res-best'), resDist: $('res-dist'), resEmbers: $('res-embers'),
-    resRebirths: $('res-rebirths'), resSize: $('res-size'), resStreak: $('res-streak'), resTitle: $('res-title'),
+    resRebirths: $('res-rebirths'), resSize: $('res-size'), resStreak: $('res-streak'),
   };
 
   // ---------------------------------------------------------------- sprites
@@ -539,18 +539,8 @@
     ui.resRebirths.textContent = g.rebirths;
     ui.resSize.textContent = g.peakSize.toFixed(1) + 'x';
     ui.resStreak.textContent = g.bestStreak;
-    ui.resTitle.textContent = rankTitle(g);
     ui.results.hidden = false; ui.hud.hidden = true;
     Audio.finish();
-  }
-  function rankTitle(g) {
-    if (g.over) return 'Out of lives. The cave keeps the rest.';
-    if (g.rebirths === 0) return 'Not one crash. Try growing bigger next time.';
-    if (g.rebirths >= 8) return 'Eight rebirths. Hard to keep down.';
-    if (g.peakSize >= 2.2) return 'That was a very large bird.';
-    if (g.bestStreak >= 25) return 'Twenty-five coins without a miss.';
-    if (g.rebirths >= 4) return 'Fell four times. Got up four times.';
-    return 'Not bad. Go again.';
   }
 
   function updateHud() {
@@ -678,10 +668,8 @@
       ctx.textAlign = 'center';
       if (g.lives > 0) {
         ctx.fillStyle = '#ffb347'; ctx.font = '52px "VT323", monospace'; ctx.fillText('REBIRTH IN ' + (Math.ceil(g.bird.deadTimer * 10) / 10).toFixed(1), W / 2, H / 2 - 40);
-        ctx.fillStyle = '#ffe9c7'; ctx.font = '28px "VT323", monospace'; ctx.fillText('Smaller. Faster. Hotter.', W / 2, H / 2);
       } else {
-        ctx.fillStyle = '#ff6b4d'; ctx.font = '52px "VT323", monospace'; ctx.fillText('BURNED OUT', W / 2, H / 2 - 40);
-        ctx.fillStyle = '#ffe9c7'; ctx.font = '28px "VT323", monospace'; ctx.fillText('No lives left.', W / 2, H / 2);
+        ctx.fillStyle = '#ff6b4d'; ctx.font = '52px "VT323", monospace'; ctx.fillText('OUT OF LIVES', W / 2, H / 2 - 40);
       }
     }
 
