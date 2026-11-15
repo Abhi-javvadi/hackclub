@@ -19,7 +19,7 @@ Open http://localhost:8000. Double-clicking `index.html` also works.
 
 - `index.html` markup for the canvas, HUD, title, results, and pause screens
 - `style.css` all styling
-- `game.js` the whole game: config, audio, input, update loop, rendering
+- `game.js` the whole game: config, input, update loop, rendering. No audio.
 - `assets/` sprite sheet and credits
 - `prototypes/` earlier throwaway builds (Phoenix v0 and the Knockdown idea)
 
@@ -31,7 +31,6 @@ Open http://localhost:8000. Double-clicking `index.html` also works.
 | Dive | `↓` or `S` |
 | Start / play again | `Space`, tap, or the button |
 | Pause | `P` |
-| Mute | `M` |
 | Restart mid-run | `R` |
 
 ## How scoring works

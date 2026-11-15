@@ -40,8 +40,8 @@
   Source: https://vinzes.itch.io/epic-2d-pixel-art-shadow-demon-dragon-with-10-animations-sfx
   License per the asset page: free for commercial use, modification allowed, credit appreciated
   but not required, no reselling or redistributing the asset files on their own.
-  The game uses cropped and downscaled frames from Idle_Left and Attack_Left, plus the attack roar.
-  The author discloses the sound effects as AI assisted. The dragon appears for the final seconds.
+  The game uses cropped and downscaled frames from Idle_Left and Attack_Left only. No audio from
+  the pack is used. The dragon appears for the final seconds.
 
 - `fireball/` — "Fireball Effect – Magic Projectile Animation for 2D Games" by NYKNCK, five 64x32 frames.
   Source: https://nyknck.itch.io/pixelarteffectfx017

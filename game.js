@@ -155,51 +155,16 @@
       DRAGON[name].push(im);
     }
   });
-  const roarEl = new window.Audio('assets/dragon/roar.mp3'); roarEl.volume = 0.6;
 
   // Dragon projectile: "Fireball Effect" by NYKNCK (itch.io), five 64x32 frames, drawn as shipped and
   // rotated in code to face its direction of travel.
   const FIREBALL = { frames: [], loaded: 0, fps: 14, scale: 1.7, get ready() { return this.loaded === 5; } };
   for (let i = 1; i <= 5; i++) { const im = new Image(); im.onload = () => { FIREBALL.loaded++; }; im.src = `assets/fireball/fb_0${i}.png`; FIREBALL.frames.push(im); }
 
-  // ---------------------------------------------------------------- audio (synthesized, no files)
-  const Audio = (() => {
-    let ac = null, muted = false, master;
-    function ensure() {
-      if (ac) return;
-      ac = new (window.AudioContext || window.webkitAudioContext)();
-      master = ac.createGain(); master.gain.value = 0.5; master.connect(ac.destination);
-    }
-    function tone({ f = 440, f2 = f, type = 'sine', dur = 0.15, vol = 0.3, at = 0 }) {
-      if (!ac || muted) return;
-      const t = ac.currentTime + at;
-      const o = ac.createOscillator(), g = ac.createGain();
-      o.type = type; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(Math.max(20, f2), t + dur);
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.02);
-    }
-    function noise({ dur = 0.5, vol = 0.4, lowpass = 800 }) {
-      if (!ac || muted) return;
-      const t = ac.currentTime, len = Math.floor(ac.sampleRate * dur);
-      const buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
-      const s = ac.createBufferSource(), g = ac.createGain(), lp = ac.createBiquadFilter();
-      lp.type = 'lowpass'; lp.frequency.value = lowpass; s.buffer = buf; g.gain.value = vol;
-      s.connect(lp); lp.connect(g); g.connect(master); s.start(t);
-    }
-    return {
-      unlock() { ensure(); if (ac.state === 'suspended') ac.resume(); },
-      toggleMute() { muted = !muted; return muted; },
-      get muted() { return muted; },
-      ember(streak) { tone({ f: 520 + Math.min(streak, 24) * 30, f2: 780 + Math.min(streak, 24) * 30, dur: 0.12, vol: 0.18, type: 'triangle' }); },
-      gold() { [0, 0.07, 0.14].forEach((at, i) => tone({ f: 660 + i * 220, f2: 880 + i * 220, dur: 0.22, vol: 0.2, type: 'triangle', at })); },
-      crash() { noise({ dur: 0.7, vol: 0.5, lowpass: 600 }); tone({ f: 180, f2: 40, dur: 0.5, vol: 0.35, type: 'sawtooth' }); },
-      rebirth() { tone({ f: 200, f2: 1400, dur: 0.6, vol: 0.25, type: 'sawtooth' }); noise({ dur: 0.4, vol: 0.2, lowpass: 3000 }); },
-      tick() { tone({ f: 1000, f2: 1000, dur: 0.06, vol: 0.12, type: 'square' }); },
-      roar() { if (muted) return; try { roarEl.currentTime = 0; roarEl.play().catch(() => {}); } catch {} },
-      finish() { [0, 0.12, 0.24, 0.42].forEach((at, i) => tone({ f: [523, 659, 784, 1046][i], f2: [523, 659, 784, 1046][i], dur: 0.35, vol: 0.22, type: 'triangle', at })); },
-    };
-  })();
+  // ---------------------------------------------------------------- audio
+  // The game is silent by decision. Every call site still goes through this object so sound can be
+  // reintroduced later without touching game logic.
+  const Audio = { unlock() {}, toggleMute() { return true; }, muted: true, ember() {}, gold() {}, crash() {}, rebirth() {}, tick() {}, roar() {}, finish() {} };
 
   // ---------------------------------------------------------------- input
   const input = { up: false, down: false, hold: false };
@@ -208,7 +173,6 @@
     if (keyMap[e.code]) { input[keyMap[e.code]] = true; e.preventDefault(); }
     if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) onPrimary(); }
     if (e.code === 'KeyP' && !e.repeat) togglePause();
-    if (e.code === 'KeyM' && !e.repeat) Audio.toggleMute();
     if (e.code === 'KeyR' && !e.repeat && game.phase !== 'title') startRun();
   });
   addEventListener('keyup', e => { if (keyMap[e.code]) input[keyMap[e.code]] = false; });
@@ -360,7 +324,6 @@
     g.t += dt;
     g.timeLeft -= dt;
     if (g.timeLeft <= 0) return finishRun();
-    if (g.timeLeft <= 5 && Math.ceil(g.timeLeft) !== g.lastTick) { g.lastTick = Math.ceil(g.timeLeft); Audio.tick(); }
 
     g.speed += CFG.speedRamp * dt;
     const travelled = g.speed * dt;
