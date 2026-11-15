@@ -105,7 +105,7 @@
   }
   function spawnEruption() {
     if (!ERUPTION.ready || ERUPTION.frames.length === 0) return;
-    const im = ERUPTION.frames[0], scale = 0.55 + Math.random() * 0.3;   // small bursts, roughly a sixth of screen height
+    const im = ERUPTION.frames[0], scale = 0.8 + Math.random() * 0.35;   // small bursts, under a quarter of screen height
     const w = im.width * scale, h = im.height * scale;
     game.eruptions.push({ x: W / 2 + (Math.random() - 0.5) * (W - 200), w, h, t: 0, dur: ERUPTION.frames.length / ERUPTION.fps });
   }
@@ -224,25 +224,20 @@
 
   function spawnObstacle() {
     const g = game, r = Math.random(), tier = Math.min(1, g.t / 60);
-    if (r < 0.52) {
+    if (r < 0.55) {
       // spike block hanging from the ceiling on a chain
       const variant = Math.random() < 0.5 ? 'block_1' : 'block_2';
       const bw = 92 + Math.random() * 56;
       const bh = bw * (variant === 'block_1' ? 320 / 284 : 320 / 267);
-      const chain = 30 + Math.random() * (210 + tier * 90);
+      const chain = 20 + Math.random() * (90 + tier * 40);
       const cw = Math.max(26, bw * 0.24);
       g.obstacles.push({ type: 'hang', variant, x: W + 80, y: 0, w: bw, h: chain + bh, bw, bh, chain, cw,
         phase: Math.random() * 6.28, sway: 0.08 + Math.random() * 0.08, cx: 0, cy: 0 });
-    } else if (r < 0.86) {
+    } else {
       // rotating saw blade
       const s = 76 + Math.random() * 60;
       g.obstacles.push({ type: 'blade', variant: 'blade_' + (1 + Math.floor(Math.random() * 3)), x: W + 80, y: 110 + Math.random() * (GROUND - 220 - s), w: s, h: s,
         spin: Math.random() * 6.28, spinV: (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 3) });
-    } else {
-      // storm crow: weaves vertically
-      const s = 48;
-      const o = { type: 'crow', x: W + 80, y: 140 + Math.random() * (GROUND - 320), w: s, h: s, baseY: 0, phase: Math.random() * 6.28, amp: 70 + Math.random() * 60, extraSpeed: 90 + tier * 80 };
-      o.baseY = o.y; g.obstacles.push(o);
     }
   }
   function spawnEmber() {
@@ -294,7 +289,6 @@
 
     for (const o of g.obstacles) {
       o.x -= (g.speed + (o.extraSpeed || 0)) * dt;
-      if (o.type === 'crow') { o.phase += dt * 3; o.y = o.baseY + Math.sin(o.phase) * o.amp; }
       if (o.type === 'blade') o.spin += o.spinV * dt;
       if (o.type === 'hang') {
         o.phase += dt * 1.7;
@@ -517,13 +511,6 @@
         if (TRAPS.ready) { ctx.imageSmoothingEnabled = true; ctx.drawImage(TRAPS.img[o.variant], -o.w / 2, -o.h / 2, o.w, o.h); }
         else { ctx.fillStyle = '#9aa3a8'; ctx.beginPath(); ctx.arc(0, 0, o.w / 2, 0, 6.28); ctx.fill(); }
         ctx.restore();
-      } else {
-        const cx = o.x + o.w / 2, cy = o.y + o.h / 2, fl = Math.sin(o.phase * 4) * 10;
-        ctx.fillStyle = '#2a1f3a';
-        ctx.beginPath(); ctx.moveTo(cx + 22, cy); ctx.lineTo(cx - 20, cy - 8); ctx.lineTo(cx - 28, cy + 4); ctx.closePath(); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - 14, cy - 26 - fl); ctx.lineTo(cx + 10, cy - 4); ctx.closePath(); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - 14, cy + 26 + fl); ctx.lineTo(cx + 10, cy + 4); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#ff4d4d'; ctx.beginPath(); ctx.arc(cx + 14, cy - 3, 2.5, 0, 6.28); ctx.fill();
       }
     }
 

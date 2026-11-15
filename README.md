@@ -53,7 +53,6 @@ time can all be changed there without touching game logic.
 
 - Spike blocks hanging from the ceiling on swaying chains. The block is lethal, the chain is not.
 - Rotating saw blades
-- Storm crows that weave up and down and move faster than the world
 
 ## Credits
 
