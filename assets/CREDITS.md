@@ -53,3 +53,8 @@
   to the project (the filename matches Pixabay sound 364481, which is under the Pixabay Content
   License: free to use, no attribution required). Plays once when the dragon enters the finale.
   Confirm the source page before any release outside the hackathon.
+
+- `audio/phoenix_screech.mp3` — "Phoenix Screech 1" from the freesound_community collection,
+  downloaded by the team and trimmed with mp3cut.net (the filename matches Pixabay sound 107784,
+  Pixabay Content License: free to use, no attribution required). Plays on every rebirth.
+  Confirm the source page before any release outside the hackathon.
