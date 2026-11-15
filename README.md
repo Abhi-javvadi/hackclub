@@ -19,6 +19,7 @@ Open http://localhost:8000. Double-clicking `index.html` also works.
 - `index.html` markup for the canvas, HUD, title, results, and pause screens
 - `style.css` all styling
 - `game.js` the whole game: config, audio, input, update loop, rendering
+- `assets/` sprite sheet and credits
 - `prototypes/` earlier throwaway builds (Phoenix v0 and the Knockdown idea)
 
 ## Controls
@@ -53,3 +54,9 @@ time can all be changed there without touching game logic.
 - Ground and ceiling spikes
 - Spinning boulders
 - Storm crows that weave up and down and move faster than the world
+
+## Credits
+
+- Phoenix sprite: "Phoenix (reborn)" by Chasersgaming, CC0, from
+  [OpenGameArt](https://opengameart.org/content/phoenix-reborn). See `assets/CREDITS.md`.
+  The sheet has fly, death, and reborn rows, and the game uses all three.

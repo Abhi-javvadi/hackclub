@@ -41,6 +41,21 @@
     resRebirths: $('res-rebirths'), resSize: $('res-size'), resHeat: $('res-heat'), resStreak: $('res-streak'), resTitle: $('res-title'),
   };
 
+  // ---------------------------------------------------------------- sprites
+  // "Phoenix (reborn)" by Chasersgaming, CC0, https://opengameart.org/content/phoenix-reborn
+  // 32x32 cells with a 1px box outline; we crop to the inner 30x30. Rows: 0 fly, 1 death, 2 reborn.
+  const SPRITE = { img: new Image(), ready: false, cell: 32, inset: 1, frames: 6, rows: { fly: 0, death: 1, reborn: 2 } };
+  SPRITE.img.onload = () => { SPRITE.ready = true; };
+  SPRITE.img.src = 'assets/phoenix_sheet.png';
+  function drawFrame(anim, frame, x, y, w, h, flipX = false) {
+    const c = SPRITE.cell, i = SPRITE.inset, inner = c - i * 2;
+    const sx = (frame % SPRITE.frames) * c + i, sy = SPRITE.rows[anim] * c + i;
+    ctx.save(); ctx.translate(x, y); if (flipX) ctx.scale(-1, 1);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(SPRITE.img, sx, sy, inner, inner, -w / 2, -h / 2, w, h);
+    ctx.restore();
+  }
+
   // ---------------------------------------------------------------- audio (synthesized, no files)
   const Audio = (() => {
     let ac = null, muted = false, master;
@@ -131,7 +146,7 @@
       phase: 'running', t: 0, timeLeft: CFG.runSeconds, lastTick: -1,
       score: 0, embers: 0, dist: 0, rebirths: 0, heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
       speed: CFG.worldSpeed,
-      bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, trail: [] },
+      bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, trail: [], anim: 0, reborn: 0 },
       obstacles: [], pickups: [], particles: [], floaters: [],
       stars: makeStars(90), ridgeFar: makeRidge(1, 24, GROUND - 140, 120), ridgeNear: makeRidge(7, 16, GROUND - 60, 90), ridgeOff: 0,
       spawnTimer: 1.2, emberTimer: 0.4, shake: 0, flash: 0, flashColor: '255,140,40',
@@ -230,6 +245,8 @@
       if (b.y < radius) { b.y = radius; b.vy = Math.abs(b.vy) * 0.3; }
       if (b.y > GROUND - radius) { b.y = GROUND - radius; b.vy = -Math.abs(b.vy) * 0.3; }
 
+      b.anim += dt * (12 + Math.abs(b.vy) / 60);   // flap faster when working hard
+      b.reborn = Math.max(0, b.reborn - dt);
       b.trail.unshift({ x: b.x, y: b.y, r: radius });
       if (b.trail.length > 14) b.trail.pop();
       if (Math.random() < 0.7) g.particles.push({ x: b.x - radius, y: b.y + (Math.random() - 0.5) * radius, vx: -g.speed * 0.5, vy: (Math.random() - 0.5) * 80 - 40, life: 0.5, max: 0.5, r: 2 + Math.random() * 4 * b.size, c: b.grace > 0 ? goldC() : fire() });
@@ -266,6 +283,7 @@
     } else {
       b.deadTimer -= dt;
       b.y = Math.min(GROUND - 10, b.y + 120 * dt);
+      if (Math.random() < 0.5) g.particles.push({ x: b.x + (Math.random() - 0.5) * 30, y: b.y + (Math.random() - 0.5) * 30, vx: -g.speed * 0.3, vy: -40 - Math.random() * 60, life: 0.6, max: 0.6, r: 2 + Math.random() * 3, c: ash() });
       if (b.deadTimer <= 0) rebirth();
     }
 
@@ -309,7 +327,7 @@
     g.rebirths++;
     g.heat = +(g.heat + CFG.heatPerRebirth).toFixed(2);
     g.peakHeat = Math.max(g.peakHeat, g.heat);
-    b.alive = true; b.size = CFG.rebirthSize; b.y = H / 2; b.vy = 0; b.grace = CFG.graceSeconds;
+    b.alive = true; b.size = CFG.rebirthSize; b.y = H / 2; b.vy = 0; b.grace = CFG.graceSeconds; b.reborn = 0.6; b.anim = 0;
     g.speed += CFG.rebirthSpeedBoost;
     g.flash = 0.9; g.flashColor = '255,200,80';
     g.obstacles = g.obstacles.filter(o => o.x > b.x + 260 || o.x + o.w < b.x - 80);
@@ -371,18 +389,26 @@
     const glow = ctx.createRadialGradient(0, 0, r * 0.3, 0, 0, r * (b.grace > 0 ? 3 : 2.2));
     glow.addColorStop(0, b.grace > 0 ? 'rgba(255,230,140,0.7)' : 'rgba(255,170,60,0.55)'); glow.addColorStop(1, 'rgba(255,90,0,0)');
     ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, r * 3, 0, 6.28); ctx.fill();
-    const flap = Math.sin(t * 18) * 0.6;
-    ctx.fillStyle = '#ff7a1f';
-    ctx.beginPath(); ctx.moveTo(-r * 0.2, 0); ctx.lineTo(-r * 1.3, -r * (1.4 + flap)); ctx.lineTo(r * 0.5, -r * 0.3); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#ff9f3d';
-    ctx.beginPath(); ctx.moveTo(-r * 0.2, 0); ctx.lineTo(-r * 1.3, r * (1.2 - flap)); ctx.lineTo(r * 0.5, r * 0.3); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#ff5e00';
-    ctx.beginPath(); ctx.moveTo(-r * 0.8, 0); ctx.lineTo(-r * 2.4, -r * 0.6); ctx.lineTo(-r * 2.0, 0); ctx.lineTo(-r * 2.4, r * 0.6); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = b.grace > 0 ? '#fff1b8' : '#ffc247';
-    ctx.beginPath(); ctx.ellipse(0, 0, r, r * 0.75, 0, 0, 6.28); ctx.fill();
-    ctx.fillStyle = '#ffd36b'; ctx.beginPath(); ctx.arc(r * 0.85, -r * 0.25, r * 0.5, 0, 6.28); ctx.fill();
-    ctx.fillStyle = '#ff8a3d'; ctx.beginPath(); ctx.moveTo(r * 1.3, -r * 0.3); ctx.lineTo(r * 1.75, -r * 0.15); ctx.lineTo(r * 1.3, 0); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#2a1200'; ctx.beginPath(); ctx.arc(r * 0.98, -r * 0.33, r * 0.11, 0, 6.28); ctx.fill();
+    if (SPRITE.ready) {
+      const px = r * 3.2;                                  // sprite box in world px
+      const frame = b.reborn > 0 ? Math.min(5, Math.floor((0.6 - b.reborn) / 0.6 * 6)) : Math.floor(b.anim) % 6;
+      if (b.grace > 0) { ctx.shadowColor = 'rgba(255,230,140,0.9)'; ctx.shadowBlur = 24; }
+      drawFrame(b.reborn > 0 ? 'reborn' : 'fly', frame, 0, 0, px, px);
+      ctx.shadowBlur = 0;
+    } else {
+      const flap = Math.sin(t * 18) * 0.6;
+      ctx.fillStyle = '#ff7a1f';
+      ctx.beginPath(); ctx.moveTo(-r * 0.2, 0); ctx.lineTo(-r * 1.3, -r * (1.4 + flap)); ctx.lineTo(r * 0.5, -r * 0.3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ff9f3d';
+      ctx.beginPath(); ctx.moveTo(-r * 0.2, 0); ctx.lineTo(-r * 1.3, r * (1.2 - flap)); ctx.lineTo(r * 0.5, r * 0.3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ff5e00';
+      ctx.beginPath(); ctx.moveTo(-r * 0.8, 0); ctx.lineTo(-r * 2.4, -r * 0.6); ctx.lineTo(-r * 2.0, 0); ctx.lineTo(-r * 2.4, r * 0.6); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = b.grace > 0 ? '#fff1b8' : '#ffc247';
+      ctx.beginPath(); ctx.ellipse(0, 0, r, r * 0.75, 0, 0, 6.28); ctx.fill();
+      ctx.fillStyle = '#ffd36b'; ctx.beginPath(); ctx.arc(r * 0.85, -r * 0.25, r * 0.5, 0, 6.28); ctx.fill();
+      ctx.fillStyle = '#ff8a3d'; ctx.beginPath(); ctx.moveTo(r * 1.3, -r * 0.3); ctx.lineTo(r * 1.75, -r * 0.15); ctx.lineTo(r * 1.3, 0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#2a1200'; ctx.beginPath(); ctx.arc(r * 0.98, -r * 0.33, r * 0.11, 0, 6.28); ctx.fill();
+    }
     ctx.restore();
   }
 
@@ -455,6 +481,10 @@
 
     if (g.bird.alive) drawBird(g.bird);
     else if (g.phase === 'running' || g.phase === 'paused') {
+      if (SPRITE.ready) {
+        const b = g.bird, prog = 1 - b.deadTimer / CFG.rebirthDelay;
+        drawFrame('death', Math.min(5, Math.floor(prog * 6)), b.x, b.y, CFG.baseRadius * b.size * 3.2, CFG.baseRadius * b.size * 3.2);
+      }
       ctx.textAlign = 'center';
       ctx.fillStyle = '#ffb347'; ctx.font = 'bold 44px system-ui'; ctx.fillText('REBIRTH IN ' + (Math.ceil(g.bird.deadTimer * 10) / 10).toFixed(1), W / 2, H / 2 - 40);
       ctx.fillStyle = '#ffe9c7'; ctx.font = '22px system-ui'; ctx.fillText('Smaller. Faster. Hotter.', W / 2, H / 2);

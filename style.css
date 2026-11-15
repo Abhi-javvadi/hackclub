@@ -58,6 +58,7 @@ canvas {
   display: inline-block; border: 1px solid var(--amber); border-radius: 6px; padding: 1px 8px; margin: 0 2px;
   font-family: ui-monospace, Menlo, monospace; color: var(--amber); font-size: 14px;
 }
+.credit { margin-top: 10px; font-size: 12px; }
 .best { margin-top: 14px; color: var(--amber); font-size: 16px; letter-spacing: 1px; min-height: 20px; }
 .go {
   margin-top: 22px; font: inherit; font-size: clamp(16px, 2.2vw, 22px); font-weight: 700; letter-spacing: 2px;
@@ -74,8 +75,12 @@ canvas {
 @keyframes pulse { 50% { opacity: 0.55; } }
 [hidden] { display: none !important; }
 @media (max-width: 700px) {
-  .stat b { font-size: 24px; }
-  #timer-bar { width: 160px; }
-  .hud-left, .hud-right { min-width: 90px; }
+  #hud { padding: 8px 12px; }
+  .stat b { font-size: 20px; }
+  .stat.small b { font-size: 14px; }
+  .label { font-size: 10px; letter-spacing: 1px; }
+  #timer-bar { width: 120px; }
+  #hud-time { font-size: 20px; }
+  .hud-left, .hud-right { min-width: 0; }
   .grid { grid-template-columns: repeat(2, 1fr); }
 }
