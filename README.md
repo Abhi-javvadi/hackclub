@@ -60,6 +60,3 @@ time can all be changed there without touching game logic.
 - Phoenix sprite: "Phoenix (reborn)" by Chasersgaming, CC0, from
   [OpenGameArt](https://opengameart.org/content/phoenix-reborn). See `assets/CREDITS.md`.
   The sheet has fly, death, and reborn rows, and the game uses all three.
-- Background dragon: "Shadow Demon Dragon" by Vinzes, free for commercial use, from
-  [itch.io](https://vinzes.itch.io/epic-2d-pixel-art-shadow-demon-dragon-with-10-animations-sfx).
-  It idles in the backdrop and attacks with a roar whenever you crash.
