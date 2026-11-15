@@ -163,15 +163,15 @@
   // ---------------------------------------------------------------- audio
   // The game is silent by decision. Every call site still goes through this object so sound can be
   // reintroduced later without touching game logic.
-  // Two exceptions: a dragon roar when the dragon enters the finale, and a phoenix screech on every rebirth.
+  // Two exceptions: a dragon roar when the dragon enters the finale, and a phoenix screech every time the phoenix dies.
   const roarEl = new window.Audio('assets/audio/dragon_roar.mp3'); roarEl.volume = 0.7; roarEl.preload = 'auto';
   const screechEl = new window.Audio('assets/audio/phoenix_screech.mp3'); screechEl.volume = 0.8; screechEl.preload = 'auto';
   const play = el => { try { el.currentTime = 0; el.play().catch(() => {}); } catch {} };
   const Audio = {
     unlock() { try { roarEl.load(); screechEl.load(); } catch {} },     // a user gesture has happened by now, so later playback is allowed
     toggleMute() { return true; }, muted: true,
-    ember() {}, gold() {}, crash() {}, tick() {}, finish() {},
-    rebirth() { play(screechEl); },
+    ember() {}, gold() {}, tick() {}, finish() {}, rebirth() {},
+    crash() { play(screechEl); },     // the screech sounds the instant the phoenix dies
     roar() { play(roarEl); },
   };
 

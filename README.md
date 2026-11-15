@@ -19,7 +19,7 @@ Open http://localhost:8000. Double-clicking `index.html` also works.
 
 - `index.html` markup for the canvas, HUD, title, results, and pause screens
 - `style.css` all styling
-- `game.js` the whole game: config, input, update loop, rendering. The only sounds are a phoenix screech on each rebirth and one dragon roar when the finale begins.
+- `game.js` the whole game: config, input, update loop, rendering. The only sounds are a phoenix screech each time the phoenix dies and one dragon roar when the finale begins.
 - `assets/` sprite sheet and credits
 - `prototypes/` earlier throwaway builds (Phoenix v0 and the Knockdown idea)
 
