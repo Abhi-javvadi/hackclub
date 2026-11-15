@@ -163,11 +163,11 @@
   // ---------------------------------------------------------------- audio
   // Two sounds only: a quiet background track that plays from the start of a run until the dragon
   // arrives, and the dragon roar that takes over at that moment. Everything else is silent.
-  const bgmEl = new window.Audio('assets/audio/bgm.mp3'); bgmEl.loop = true; bgmEl.volume = 0.22; bgmEl.preload = 'auto';
-  const roarEl = new window.Audio('assets/audio/dragon_roar.mp3'); roarEl.volume = 0.7; roarEl.preload = 'auto';
+  const bgmEl = new window.Audio('assets/audio/bgm.mp3'); bgmEl.loop = true; bgmEl.volume = 0.08; bgmEl.preload = 'auto';
+  const roarEl = new window.Audio('assets/audio/dragon_roar.mp3'); roarEl.volume = 0.3; roarEl.preload = 'auto';
   const play = el => { try { el.currentTime = 0; el.play().catch(() => {}); } catch {} };
   let bgmFade = null;
-  const BGM_VOLUME = 0.22;
+  const BGM_VOLUME = 0.08;
   const Audio = {
     unlock() { try { bgmEl.load(); roarEl.load(); } catch {} },     // a user gesture has happened by now, so later playback is allowed
     toggleMute() { return true; }, muted: true,
