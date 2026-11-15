@@ -80,6 +80,44 @@
   for (const n of TRAPS.names) { const im = new Image(); im.onload = () => { TRAPS.loaded++; }; im.src = `assets/traps/${n}.png`; TRAPS.img[n] = im; }
   const CHAIN_ASPECT = 440 / 54, CHAIN_OVERLAP = 0.12;   // links overlap slightly so the seam between pieces hides
 
+  // Lava floor: "animated lava 16x32" (CC0, OpenGameArt). Eight 16x32 frames in one 128x32 strip,
+  // tiled along the bottom of the screen at 3x and scrolled with the world.
+  const LAVA = { img: new Image(), ready: false, fw: 16, fh: 32, frames: 8, scale: 3, fps: 8 };
+  LAVA.img.onload = () => { LAVA.ready = true; };
+  LAVA.img.src = 'assets/lava/lava_strip8.png';
+  function drawLava(off, t) {
+    if (!LAVA.ready) return;
+    const tw = LAVA.fw * LAVA.scale, th = LAVA.fh * LAVA.scale, frame = Math.floor(t * LAVA.fps) % LAVA.frames;
+    const y = H - th + 6, shift = Math.floor(off % tw);
+    ctx.imageSmoothingEnabled = false;
+    for (let x = -shift - tw; x < W + tw; x += tw) ctx.drawImage(LAVA.img, frame * LAVA.fw, 0, LAVA.fw, LAVA.fh, x, y, tw, th);
+  }
+
+  // Bottom eruptions: frame-sequence animations that burst up out of the lava.
+  // Frames are supplied by ERUPTION.frames (an array of Image). Empty until an effect pack is wired in.
+  const ERUPTION = { frames: [], fps: 18, ready: false, timer: 2 + Math.random() * 3 };
+  function spawnEruption() {
+    if (!ERUPTION.ready || ERUPTION.frames.length === 0) return;
+    const im = ERUPTION.frames[0], scale = 1.1 + Math.random() * 0.8;
+    const w = im.width * scale, h = im.height * scale;
+    game.eruptions.push({ x: W / 2 + (Math.random() - 0.5) * (W - 200), w, h, t: 0, dur: ERUPTION.frames.length / ERUPTION.fps });
+  }
+  function updateEruptions(dt, travelled) {
+    const g = game;
+    ERUPTION.timer -= dt;
+    if (ERUPTION.timer <= 0) { spawnEruption(); ERUPTION.timer = 1.4 + Math.random() * 2.6; }
+    for (const e of g.eruptions) { e.t += dt; e.x -= travelled * 0.75; }
+    g.eruptions = g.eruptions.filter(e => e.t < e.dur);
+  }
+  function drawEruptions() {
+    if (!ERUPTION.ready) return;
+    for (const e of game.eruptions) {
+      const idx = Math.min(ERUPTION.frames.length - 1, Math.floor(e.t / e.dur * ERUPTION.frames.length));
+      // anchored at the lava surface so the burst rises out of the bottom of the screen
+      ctx.drawImage(ERUPTION.frames[idx], e.x - e.w / 2, H - 20 - e.h, e.w, e.h);
+    }
+  }
+
   // ---------------------------------------------------------------- audio (synthesized, no files)
   const Audio = (() => {
     let ac = null, muted = false, master;
@@ -165,7 +203,7 @@
       score: 0, embers: 0, dist: 0, rebirths: 0, heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
       speed: CFG.worldSpeed,
       bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, trail: [], anim: 0, reborn: 0 },
-      obstacles: [], pickups: [], particles: [], floaters: [],
+      obstacles: [], pickups: [], particles: [], floaters: [], eruptions: [],
       stars: makeStars(60), ridgeOff: 0,
       spawnTimer: 1.2, emberTimer: 0.4, shake: 0, flash: 0, flashColor: '255,140,40',
     };
@@ -237,6 +275,7 @@
     g.dist += travelled * CFG.distancePerPx;
     g.score += travelled * CFG.distancePerPx * 0.5;          // distance is a slow trickle; embers are the real score
     g.ridgeOff += travelled;
+    updateEruptions(dt, travelled);
 
     for (const st of g.stars) { st.x -= st.s * dt; if (st.x < 0) { st.x = W; st.y = Math.random() * GROUND; } }
 
@@ -443,6 +482,8 @@
     if (CAVE.ready) {
       // Admurin's layers drawn as shipped, back wall to near rocks, nothing composited on top
       for (const layer of CAVE.layers) drawCaveLayer(layer, g.ridgeOff);
+      drawLava(g.ridgeOff, g.t);
+      drawEruptions();
     } else {
       const sky = ctx.createLinearGradient(0, 0, 0, H);
       sky.addColorStop(0, '#0b0a1a'); sky.addColorStop(1, '#2a0f1e');

@@ -16,3 +16,7 @@
   Source: https://opengameart.org/content/2d-obstacle-collection
   Used: swinging_spike_block, swinging_spike_block_2, long_chain_piece, blade_1, blade_2, blade_3. Files were downscaled; no other changes. Longer chains in the game
   are the original chain piece repeated end to end at draw time.
+
+- `lava/lava_strip8.png` — "animated lava 16x32", CC0 (public domain).
+  Source: https://opengameart.org/content/animated-lava-16x32
+  Eight 16x32 frames in one strip, tiled along the bottom of the screen.

@@ -65,3 +65,5 @@ time can all be changed there without touching game logic.
 - Obstacles: "2d obstacle collection" by Game Developer Studio, CC-BY 4.0, from
   [OpenGameArt](https://opengameart.org/content/2d-obstacle-collection). Chains are the pack's
   chain piece tiled at draw time.
+- Lava floor: "animated lava 16x32", CC0, from
+  [OpenGameArt](https://opengameart.org/content/animated-lava-16x32).
