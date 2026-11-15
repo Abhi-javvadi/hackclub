@@ -8,7 +8,7 @@
   const CFG = {
     runSeconds: 90,
     finaleSeconds: 10,      // last stretch: obstacles stop, the dragon arrives
-    lives: 5,               // run ends when these are gone, whatever the clock says
+    lives: 4,               // run ends when these are gone, whatever the clock says
     worldSpeed: 380,        // px/s at start
     speedRamp: 5,           // px/s gained per second
     rebirthSpeedBoost: 55,  // px/s gained per rebirth
@@ -145,7 +145,7 @@
   // Frames cropped from the Idle_Left and Attack_Left sheets and scaled to 506x256. It arrives for the
   // last stretch of the run; its projectiles are added separately.
   const DRAGON = {
-    idle: [], attack: [], loaded: 0, total: 20, scale: 1.0,
+    idle: [], attack: [], loaded: 0, total: 20, scale: 1.35,   // draw scale only; frames are the pack's own
     get ready() { return this.loaded === this.total; },
   };
   ['idle', 'attack'].forEach(name => {
@@ -430,10 +430,10 @@
   function updateDragon(dt) {
     const d = game.dragon;
     d.anim += dt * 8; d.bob += dt;
-    d.x = Math.max(W - 300, d.x - 260 * dt);     // slides in from the right, then holds position
+    d.x = Math.max(W - 340, d.x - 260 * dt);     // slides in from the right, then holds position
     d.y = H * 0.42 + Math.sin(d.bob * 1.4) * 14;
     if (d.attackT >= 0) { d.attackT += dt; if (d.attackT > 1.1) d.attackT = -1; }
-    else if (d.x <= W - 300) { d.nextAttack -= dt; if (d.nextAttack <= 0) { d.attackT = 0; d.nextAttack = 1.6 + Math.random() * 1.2; dragonFire(); } }
+    else if (d.x <= W - 340) { d.nextAttack -= dt; if (d.nextAttack <= 0) { d.attackT = 0; d.nextAttack = 1.6 + Math.random() * 1.2; dragonFire(); } }
   }
   function dragonFire() {
     // projectile hook: fired at the start of each attack animation. Filled in when the projectile asset arrives.
@@ -496,7 +496,7 @@
     Audio.finish();
   }
   function rankTitle(g) {
-    if (g.over) return 'BURNED OUT. Five falls is all the cave allows.';
+    if (g.over) return 'BURNED OUT. Four falls is all the cave allows.';
     if (g.rebirths === 0) return 'UNTOUCHED. But you never got hotter.';
     if (g.rebirths >= 8) return 'ETERNAL FLAME. Nothing keeps you down.';
     if (g.peakSize >= 2.2) return 'INFERNO. You grew into something huge.';
