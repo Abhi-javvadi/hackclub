@@ -56,6 +56,23 @@
     ctx.restore();
   }
 
+  // Background boss: "Shadow Demon Dragon" by Vinzes (itch.io), free for commercial use, credit appreciated.
+  // Frames were cropped from the Idle_Left and Attack_Left sheets and scaled to 506x256.
+  const DRAGON = {
+    idle: [], attack: [], loaded: 0, total: 20,
+    x: W - 330, scale: 1.15, anim: 0, attackT: -1, bob: 0,
+    get ready() { return this.loaded === this.total; },
+  };
+  ['idle', 'attack'].forEach(name => {
+    for (let i = 0; i < 10; i++) {
+      const im = new Image();
+      im.onload = () => { DRAGON.loaded++; };
+      im.src = `assets/dragon/${name}_${String(i).padStart(2, '0')}.png`;
+      DRAGON[name].push(im);
+    }
+  });
+  const roarEl = new window.Audio('assets/dragon/roar.mp3'); roarEl.volume = 0.6;
+
   // ---------------------------------------------------------------- audio (synthesized, no files)
   const Audio = (() => {
     let ac = null, muted = false, master;
@@ -90,6 +107,7 @@
       crash() { noise({ dur: 0.7, vol: 0.5, lowpass: 600 }); tone({ f: 180, f2: 40, dur: 0.5, vol: 0.35, type: 'sawtooth' }); },
       rebirth() { tone({ f: 200, f2: 1400, dur: 0.6, vol: 0.25, type: 'sawtooth' }); noise({ dur: 0.4, vol: 0.2, lowpass: 3000 }); },
       tick() { tone({ f: 1000, f2: 1000, dur: 0.06, vol: 0.12, type: 'square' }); },
+      roar() { if (muted) return; try { roarEl.currentTime = 0; roarEl.play().catch(() => {}); } catch {} },
       finish() { [0, 0.12, 0.24, 0.42].forEach((at, i) => tone({ f: [523, 659, 784, 1046][i], f2: [523, 659, 784, 1046][i], dur: 0.35, vol: 0.22, type: 'triangle', at })); },
     };
   })();
@@ -216,6 +234,7 @@
     g.ridgeOff += travelled;
 
     for (const st of g.stars) { st.x -= st.s * dt; if (st.x < 0) { st.x = W; st.y = Math.random() * GROUND; } }
+    updateDragon(dt);
 
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) { spawnObstacle(); g.spawnTimer = Math.max(0.5, 1.45 - g.speed / 1000) + Math.random() * 0.45; }
@@ -297,6 +316,13 @@
     updateHud();
   }
 
+  function updateDragon(dt) {
+    DRAGON.anim += dt * 8;
+    DRAGON.bob += dt;
+    if (DRAGON.attackT >= 0) { DRAGON.attackT += dt; if (DRAGON.attackT > 1.1) DRAGON.attackT = -1; }
+  }
+  function dragonAttack() { DRAGON.attackT = 0; Audio.roar(); }
+
   function collect(p) {
     const g = game, b = g.bird;
     g.streak++; g.bestStreak = Math.max(g.bestStreak, g.streak);
@@ -320,6 +346,7 @@
     burst(b.x, b.y, 30, 200, ash, 1.6);
     b.trail = [];
     Audio.crash();
+    dragonAttack();
   }
 
   function rebirth() {
@@ -412,6 +439,30 @@
     ctx.restore();
   }
 
+  function drawDragon(heatTint) {
+    if (!DRAGON.ready) return;
+    const attacking = DRAGON.attackT >= 0;
+    const frames = attacking ? DRAGON.attack : DRAGON.idle;
+    const idx = attacking ? Math.min(9, Math.floor(DRAGON.attackT / 1.1 * 10)) : Math.floor(DRAGON.anim) % 10;
+    const im = frames[idx];
+    const w = im.width * DRAGON.scale, h = im.height * DRAGON.scale;
+    const x = DRAGON.x - w / 2 + (attacking ? -40 * Math.sin(Math.min(1, DRAGON.attackT) * Math.PI) : 0);
+    const y = GROUND - h + 6 + Math.sin(DRAGON.bob * 1.2) * 3;
+    ctx.save();
+    // sits in the backdrop: dimmed, with a faint heat haze that strengthens as Heat climbs
+    ctx.globalAlpha = attacking ? 0.95 : 0.72;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(im, x, y, w, h);
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = `rgba(${40 + heatTint * 80},0,${30 - heatTint * 20},${0.35 - heatTint * 0.15})`;
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+    // eye glow pulse
+    const eg = ctx.createRadialGradient(x + w * 0.33, y + h * 0.3, 2, x + w * 0.33, y + h * 0.3, 40 + heatTint * 30);
+    eg.addColorStop(0, `rgba(255,40,40,${attacking ? 0.5 : 0.18 + Math.sin(DRAGON.bob * 3) * 0.06})`); eg.addColorStop(1, 'rgba(255,0,0,0)');
+    ctx.fillStyle = eg; ctx.fillRect(x, y, w, h);
+  }
+
   function drawRidge(pts, off, speedFrac, color) {
     const seg = W / (pts.length - 1), shift = (off * speedFrac) % seg;
     ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(-seg, H);
@@ -437,6 +488,7 @@
 
     drawRidge(g.ridgeFar, g.ridgeOff, 0.15, '#180d1c');
     drawRidge(g.ridgeNear, g.ridgeOff, 0.35, '#230f1e');
+    drawDragon(heatTint);
 
     ctx.fillStyle = '#1a0c14'; ctx.fillRect(-20, GROUND, W + 40, H - GROUND + 20);
     ctx.fillStyle = '#3b1420'; ctx.fillRect(-20, GROUND, W + 40, 6);
