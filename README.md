@@ -88,3 +88,9 @@ from two to four shots, come more often, and fly faster as the clock runs down. 
 - Dragon roar: "Epic Dragon Roar" by Dragon Studio (Pixabay).
 - Background music: "8-bit - Perilous Dungeon" by HydroGene, CC0, from
   [OpenGameArt](https://opengameart.org/content/8-bit-perilous-dungeon).
+
+## Team
+
+- Abhi Javvadi
+- ultraspy47
+- add the rest of the team here
