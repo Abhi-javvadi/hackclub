@@ -2,9 +2,9 @@
 
 Hack Haven NYC 2026. Theme: **Bounce Back**.
 
-A 90-second canvas flyer with four lives. Crash and you burn, then rise again
+A 90-second canvas flyer with five lives. Crash and you burn, then rise again
 smaller and faster, and every rebirth raises your Heat multiplier. Lose all
-four lives and the run ends early.
+five lives and the run ends early.
 Plain HTML, CSS, and JavaScript. No build step, no dependencies.
 
 ## Run it
@@ -39,7 +39,7 @@ Open http://localhost:8000. Double-clicking `index.html` also works.
 - Score comes mostly from bronze coins. Each coin is worth `10 × size × heat`.
 - Size grows with every coin up to 2.6x. Bigger means more points but a bigger hitbox and less agility.
 - Distance adds a small trickle.
-- You start with 4 lives. Each crash costs one. At zero the run ends, whatever the timer says.
+- You start with 5 lives. Each crash costs one. At zero the run ends, whatever the timer says.
 - Crashing resets size to 0.55x and starts a 1.5 second rebirth. On rebirth, Heat goes up by 0.5 and world speed increases.
 - After rebirth you get 2.5 seconds of Second Wind: invulnerable, and coins pay double.
 - Best score is saved in the browser.

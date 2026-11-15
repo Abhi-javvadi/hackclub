@@ -8,7 +8,7 @@
   const CFG = {
     runSeconds: 90,
     finaleSeconds: 10,      // last stretch: obstacles stop, the dragon arrives
-    lives: 4,               // run ends when these are gone, whatever the clock says
+    lives: 5,               // run ends when these are gone, whatever the clock says
     worldSpeed: 380,        // px/s at start
     speedRamp: 5,           // px/s gained per second
     rebirthSpeedBoost: 55,  // px/s gained per rebirth
@@ -538,7 +538,7 @@
     Audio.finish();
   }
   function rankTitle(g) {
-    if (g.over) return 'BURNED OUT. Four falls is all the cave allows.';
+    if (g.over) return 'BURNED OUT. Five falls is all the cave allows.';
     if (g.rebirths === 0) return 'UNTOUCHED. But you never got hotter.';
     if (g.rebirths >= 8) return 'ETERNAL FLAME. Nothing keeps you down.';
     if (g.peakSize >= 2.2) return 'INFERNO. You grew into something huge.';
