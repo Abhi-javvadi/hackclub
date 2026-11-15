@@ -49,6 +49,7 @@ canvas {
   position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; background: rgba(5,4,14,0.74); backdrop-filter: blur(3px); padding: 24px;
 }
+#title { background: #000; backdrop-filter: none; }
 .logo {
   font-family: "Silkscreen", monospace; font-size: clamp(36px, 6.5vw, 72px); font-weight: 700; letter-spacing: 4px; color: var(--orange);
   text-shadow: 0 0 40px var(--hot), 0 0 80px rgba(255,94,0,0.5); line-height: 1;
@@ -70,7 +71,7 @@ canvas {
 .go {
   margin-top: 26px; font-family: "Silkscreen", monospace; font-size: clamp(13px, 1.6vw, 17px); font-weight: 700; letter-spacing: 1px;
   color: #fff; background: linear-gradient(180deg, var(--orange), var(--hot)); border: 0; border-radius: 999px;
-  padding: 14px 34px; cursor: pointer; box-shadow: 0 0 30px rgba(255,94,0,0.5); animation: pulse 1.4s infinite;
+  padding: 14px 34px; cursor: pointer;
 }
 .go:active { transform: scale(0.97); }
 .final { display: flex; flex-direction: column; align-items: center; margin-top: 10px; }
