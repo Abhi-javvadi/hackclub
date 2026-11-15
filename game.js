@@ -56,6 +56,22 @@
     ctx.restore();
   }
 
+  // Cave backdrop: "Parallax Backgrounds: Caves" by Admurin (itch.io). Free for any project, credit appreciated.
+  // Seven 384x216 layers. layer7 is the back wall, layer1 the nearest rocks. Each scales to exactly 1280x720.
+  const CAVE = { layers: [], loaded: 0, get ready() { return this.loaded === 7; } };
+  // [file index, scroll speed as a fraction of world speed]
+  const CAVE_PLAN = [[7, 0.02], [6, 0.06], [5, 0.11], [4, 0.18], [3, 0.3], [2, 0.5], [1, 0.75]];
+  for (const [n, frac] of CAVE_PLAN) {
+    const im = new Image(); im.onload = () => { CAVE.loaded++; }; im.src = `assets/cave/layer${n}.png`;
+    CAVE.layers.push({ im, frac, n });
+  }
+  function drawCaveLayer(layer, off) {
+    const shift = Math.floor((off * layer.frac) % W);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(layer.im, -shift, 0, W, H);
+    ctx.drawImage(layer.im, W - shift, 0, W, H);
+  }
+
   // ---------------------------------------------------------------- audio (synthesized, no files)
   const Audio = (() => {
     let ac = null, muted = false, master;
@@ -135,12 +151,6 @@
   function makeStars(n) {
     return Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * GROUND, r: Math.random() * 1.6 + 0.3, s: Math.random() * 20 + 10 }));
   }
-  function makeRidge(seed, count, base, amp) {
-    const pts = [];
-    for (let i = 0; i <= count; i++) pts.push(base - Math.abs(Math.sin(i * 1.3 + seed) * amp + Math.sin(i * 0.4 + seed * 2) * amp * 0.5));
-    return pts;
-  }
-
   function startRun() {
     game = {
       phase: 'running', t: 0, timeLeft: CFG.runSeconds, lastTick: -1,
@@ -148,7 +158,7 @@
       speed: CFG.worldSpeed,
       bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, trail: [], anim: 0, reborn: 0 },
       obstacles: [], pickups: [], particles: [], floaters: [],
-      stars: makeStars(90), ridgeFar: makeRidge(1, 24, GROUND - 140, 120), ridgeNear: makeRidge(7, 16, GROUND - 60, 90), ridgeOff: 0,
+      stars: makeStars(60), ridgeOff: 0,
       spawnTimer: 1.2, emberTimer: 0.4, shake: 0, flash: 0, flashColor: '255,140,40',
     };
     ui.title.hidden = true; ui.results.hidden = true; ui.paused.hidden = true; ui.hud.hidden = false;
@@ -412,37 +422,32 @@
     ctx.restore();
   }
 
-  function drawRidge(pts, off, speedFrac, color) {
-    const seg = W / (pts.length - 1), shift = (off * speedFrac) % seg;
-    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(-seg, H);
-    for (let i = 0; i < pts.length + 1; i++) {
-      const idx = (i + Math.floor(off * speedFrac / seg)) % pts.length;
-      ctx.lineTo(i * seg - shift, pts[idx]);
-    }
-    ctx.lineTo(W + seg, H); ctx.closePath(); ctx.fill();
-  }
-
   function draw() {
     const g = game;
     ctx.save();
     if (g.shake > 0) ctx.translate((Math.random() - 0.5) * g.shake, (Math.random() - 0.5) * g.shake);
 
-    const sky = ctx.createLinearGradient(0, 0, 0, H);
     const heatTint = Math.min(1, (g.heat - 1) / 4);
-    sky.addColorStop(0, `rgb(${11 + heatTint * 30},10,${26 - heatTint * 10})`); sky.addColorStop(1, `rgb(${42 + heatTint * 60},${15 + heatTint * 10},30)`);
-    ctx.fillStyle = sky; ctx.fillRect(-20, -20, W + 40, H + 40);
-    ctx.fillStyle = '#fff';
-    for (const st of g.stars) { ctx.globalAlpha = 0.4 + Math.sin(g.t * 2 + st.x) * 0.3; ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, 6.28); ctx.fill(); }
-    ctx.globalAlpha = 1;
-
-    drawRidge(g.ridgeFar, g.ridgeOff, 0.15, '#180d1c');
-    drawRidge(g.ridgeNear, g.ridgeOff, 0.35, '#230f1e');
-
-    ctx.fillStyle = '#1a0c14'; ctx.fillRect(-20, GROUND, W + 40, H - GROUND + 20);
-    ctx.fillStyle = '#3b1420'; ctx.fillRect(-20, GROUND, W + 40, 6);
-    const lava = ctx.createLinearGradient(0, GROUND + 6, 0, H);
-    lava.addColorStop(0, `rgba(255,90,0,${0.3 + heatTint * 0.3})`); lava.addColorStop(1, 'rgba(255,90,0,0)');
-    ctx.fillStyle = lava; ctx.fillRect(-20, GROUND + 6, W + 40, H - GROUND);
+    if (CAVE.ready) {
+      // back wall through to mid rocks
+      for (let i = 0; i < 6; i++) drawCaveLayer(CAVE.layers[i], g.ridgeOff);
+      // warm the cave as Heat rises
+      ctx.fillStyle = `rgba(255,${90 - heatTint * 30},20,${0.08 + heatTint * 0.22})`; ctx.fillRect(-20, -20, W + 40, H + 40);
+      // drifting embers / dust
+      ctx.fillStyle = '#ffb347';
+      for (const st of g.stars) { ctx.globalAlpha = 0.15 + Math.sin(g.t * 2 + st.x) * 0.12; ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, 6.28); ctx.fill(); }
+      ctx.globalAlpha = 1;
+      // lava floor under the near rocks
+      const lava = ctx.createLinearGradient(0, GROUND - 40, 0, H);
+      lava.addColorStop(0, 'rgba(255,90,0,0)'); lava.addColorStop(0.5, `rgba(255,90,0,${0.35 + heatTint * 0.3})`); lava.addColorStop(1, 'rgba(255,140,30,0.6)');
+      ctx.fillStyle = lava; ctx.fillRect(-20, GROUND - 40, W + 40, H - GROUND + 60);
+      drawCaveLayer(CAVE.layers[6], g.ridgeOff);
+    } else {
+      const sky = ctx.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, '#0b0a1a'); sky.addColorStop(1, '#2a0f1e');
+      ctx.fillStyle = sky; ctx.fillRect(-20, -20, W + 40, H + 40);
+      ctx.fillStyle = '#1a0c14'; ctx.fillRect(-20, GROUND, W + 40, H - GROUND + 20);
+    }
 
     for (const o of g.obstacles) {
       if (o.type === 'spike') {

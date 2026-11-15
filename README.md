@@ -60,3 +60,5 @@ time can all be changed there without touching game logic.
 - Phoenix sprite: "Phoenix (reborn)" by Chasersgaming, CC0, from
   [OpenGameArt](https://opengameart.org/content/phoenix-reborn). See `assets/CREDITS.md`.
   The sheet has fly, death, and reborn rows, and the game uses all three.
+- Cave backdrop: "Parallax Backgrounds: Caves" by Admurin, free for any project, from
+  [itch.io](https://admurin.itch.io/parallax-backgrounds-caves). Seven layers scroll at different speeds.
