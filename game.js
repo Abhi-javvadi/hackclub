@@ -223,7 +223,7 @@
       phase: 'running', t: 0, timeLeft: CFG.runSeconds, lastTick: -1,
       score: 0, embers: 0, dist: 0, rebirths: 0, heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
       speed: CFG.worldSpeed,
-      bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, trail: [], anim: 0, reborn: 0 },
+      bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, anim: 0, reborn: 0 },
       obstacles: [], pickups: [], particles: [], floaters: [], eruptions: [],
       stars: makeStars(60), ridgeOff: 0,
       spawnTimer: 1.2, emberTimer: 0.4, shake: 0, flash: 0, flashColor: '255,140,40',
@@ -343,10 +343,6 @@
 
       b.anim += dt * (12 + Math.abs(b.vy) / 60);   // flap faster when working hard
       b.reborn = Math.max(0, b.reborn - dt);
-      b.trail.unshift({ x: b.x, y: b.y, r: radius });
-      if (b.trail.length > 14) b.trail.pop();
-      if (Math.random() < 0.7) g.particles.push({ x: b.x - radius, y: b.y + (Math.random() - 0.5) * radius, vx: -g.speed * 0.5, vy: (Math.random() - 0.5) * 80 - 40, life: 0.5, max: 0.5, r: 2 + Math.random() * 4 * b.size, c: b.grace > 0 ? goldC() : fire() });
-
       // pickups (magnet during grace)
       for (let i = g.pickups.length - 1; i >= 0; i--) {
         const p = g.pickups[i], d = Math.hypot(p.x - b.x, p.y - b.y);
@@ -420,7 +416,6 @@
     g.shake = 18; g.flash = 1; g.flashColor = '255,80,20';
     burst(b.x, b.y, Math.round(60 * b.size), 420, fire, 1.1);
     burst(b.x, b.y, 30, 200, ash, 1.6);
-    b.trail = [];
     Audio.crash();
   }
 
@@ -480,11 +475,6 @@
   // ---------------------------------------------------------------- draw
   function drawBird(b) {
     const r = CFG.baseRadius * b.size, t = game.t;
-    for (let i = b.trail.length - 1; i >= 0; i--) {
-      const tr = b.trail[i], a = (1 - i / b.trail.length) * 0.35;
-      ctx.fillStyle = b.grace > 0 ? `rgba(255,220,120,${a})` : `rgba(255,${120 + i * 6},40,${a})`;
-      ctx.beginPath(); ctx.arc(tr.x - i * 6, tr.y, tr.r * (1 - i / b.trail.length) * 0.9, 0, 6.28); ctx.fill();
-    }
     ctx.save();
     ctx.translate(b.x, b.y);
     ctx.rotate(Math.max(-0.5, Math.min(0.5, b.vy / 900)));
