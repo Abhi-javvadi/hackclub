@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>Phoenix Run</title>
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=24">
 </head>
 <body>
 <div id="wrap">
@@ -14,6 +14,7 @@
     <div class="hud-left">
       <div class="stat"><span class="label">SCORE</span><b id="hud-score">0</b></div>
       <div class="stat small"><span class="label">COINS</span><b id="hud-embers">0</b></div>
+      <div id="hud-lives"><span class="heart"></span><span class="heart"></span><span class="heart"></span></div>
     </div>
     <div class="hud-center">
       <div id="timer-bar"><div id="timer-fill"></div></div>
@@ -31,7 +32,7 @@
     <div class="rules">
       <p>Fly through the volcano for <b>90 seconds</b> and score as high as you can.</p>
       <p>Collect <span class="ember">bronze coins</span> to grow. A bigger phoenix is worth more points but is easier to hit.</p>
-      <p><span class="hot">Crashing never ends the run.</span> You burn, and a moment later you rise again: smaller, faster, and hotter. Every rebirth raises your <b>Heat</b> multiplier.</p>
+      <p><span class="hot">You have three lives.</span> Crash and you burn, then rise again: smaller, faster, and hotter. Every rebirth raises your <b>Heat</b> multiplier. Lose all three and the run is over, whatever the clock says.</p>
     </div>
     <div class="controls">
       <div><span class="key">↑</span><span class="key">W</span> rise &nbsp; <span class="key">↓</span><span class="key">S</span> dive</div>
@@ -39,12 +40,12 @@
       <div class="muted"><span class="key">P</span> pause &nbsp; <span class="key">M</span> mute</div>
     </div>
     <div id="best-line" class="best"></div>
-    <div class="muted credit">Phoenix sprite by Chasersgaming (CC0, OpenGameArt) · Cave backgrounds by Admurin (itch.io) · Obstacles by Game Developer Studio (CC-BY 4.0) · Flame effects by CraftPix.net · Coins by TotusLotus (itch.io)</div>
+    <div class="muted credit">Phoenix sprite by Chasersgaming (CC0, OpenGameArt) · Cave backgrounds by Admurin (itch.io) · Obstacles by Game Developer Studio (CC-BY 4.0) · Flame effects by CraftPix.net · Coins by TotusLotus (itch.io) · Hearts by AXIALE (itch.io)</div>
     <button id="start-btn" class="go">PRESS SPACE OR TAP TO FLY</button>
   </div>
 
   <div id="results" class="screen" hidden>
-    <div class="logo small">RUN COMPLETE</div>
+    <div id="res-heading" class="logo small">RUN COMPLETE</div>
     <div class="final"><span class="label">FINAL SCORE</span><b id="res-score">0</b></div>
     <div id="res-best" class="best"></div>
     <div class="grid">
@@ -64,6 +65,6 @@
     <div class="muted">Press P to resume</div>
   </div>
 </div>
-<script src="game.js?v=22"></script>
+<script src="game.js?v=24"></script>
 </body>
 </html>

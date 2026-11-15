@@ -7,6 +7,7 @@
   // ---------------------------------------------------------------- config
   const CFG = {
     runSeconds: 90,
+    lives: 3,               // run ends when these are gone, whatever the clock says
     worldSpeed: 380,        // px/s at start
     speedRamp: 5,           // px/s gained per second
     rebirthSpeedBoost: 55,  // px/s gained per rebirth
@@ -34,7 +35,8 @@
   const $ = id => document.getElementById(id);
   const ui = {
     hud: $('hud'), score: $('hud-score'), embers: $('hud-embers'), heat: $('hud-heat'), rebirths: $('hud-rebirths'),
-    time: $('hud-time'), timerFill: $('timer-fill'),
+    time: $('hud-time'), timerFill: $('timer-fill'), hearts: [...document.querySelectorAll('#hud-lives .heart')],
+    resHeading: $('res-heading'),
     title: $('title'), results: $('results'), paused: $('paused'), bestLine: $('best-line'),
     startBtn: $('start-btn'), againBtn: $('again-btn'),
     resScore: $('res-score'), resBest: $('res-best'), resDist: $('res-dist'), resEmbers: $('res-embers'),
@@ -221,7 +223,7 @@
   function startRun() {
     game = {
       phase: 'running', t: 0, timeLeft: CFG.runSeconds, lastTick: -1,
-      score: 0, embers: 0, dist: 0, rebirths: 0, heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
+      score: 0, embers: 0, dist: 0, rebirths: 0, lives: CFG.lives, over: false, heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
       speed: CFG.worldSpeed,
       bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, anim: 0, reborn: 0 },
       obstacles: [], pickups: [], particles: [], floaters: [], eruptions: [],
@@ -382,7 +384,7 @@
       b.deadTimer -= dt;
       b.y = Math.min(GROUND - 10, b.y + 120 * dt);
       if (Math.random() < 0.5) g.particles.push({ x: b.x + (Math.random() - 0.5) * 30, y: b.y + (Math.random() - 0.5) * 30, vx: -g.speed * 0.3, vy: -40 - Math.random() * 60, life: 0.6, max: 0.6, r: 2 + Math.random() * 3, c: ash() });
-      if (b.deadTimer <= 0) rebirth();
+      if (b.deadTimer <= 0) { if (g.lives > 0) rebirth(); else return finishRun('lives'); }
     }
 
     for (const p of g.particles) { p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 120 * dt; }
@@ -411,6 +413,7 @@
 
   function crash() {
     const g = game, b = g.bird;
+    g.lives--;
     b.alive = false; b.deadTimer = CFG.rebirthDelay;
     g.streak = 0;
     g.shake = 18; g.flash = 1; g.flashColor = '255,80,20';
@@ -433,9 +436,11 @@
     Audio.rebirth();
   }
 
-  function finishRun() {
+  function finishRun(reason = 'time') {
     const g = game;
     g.phase = 'results';
+    g.over = reason === 'lives';
+    ui.resHeading.textContent = g.over ? 'OUT OF LIVES' : 'RUN COMPLETE';
     const score = Math.round(g.score), best = loadBest();
     const isBest = score > best;
     if (isBest) saveBest(score);
@@ -452,6 +457,7 @@
     Audio.finish();
   }
   function rankTitle(g) {
+    if (g.over) return 'BURNED OUT. Three falls is all the cave allows.';
     if (g.rebirths === 0) return 'UNTOUCHED. But you never got hotter.';
     if (g.rebirths >= 8) return 'ETERNAL FLAME. Nothing keeps you down.';
     if (g.peakSize >= 2.2) return 'INFERNO. You grew into something huge.';
@@ -466,6 +472,7 @@
     ui.embers.textContent = g.embers;
     ui.heat.textContent = 'x' + g.heat.toFixed(1);
     ui.rebirths.textContent = g.rebirths;
+    ui.hearts.forEach((el, i) => el.classList.toggle('lost', i >= g.lives));
     const tl = Math.max(0, g.timeLeft);
     ui.time.textContent = Math.ceil(tl);
     ui.time.classList.toggle('urgent', tl <= 10);
@@ -579,8 +586,13 @@
         drawFrame('death', Math.min(5, Math.floor(prog * 6)), b.x, b.y, CFG.baseRadius * b.size * 3.2, CFG.baseRadius * b.size * 3.2);
       }
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#ffb347'; ctx.font = 'bold 44px system-ui'; ctx.fillText('REBIRTH IN ' + (Math.ceil(g.bird.deadTimer * 10) / 10).toFixed(1), W / 2, H / 2 - 40);
-      ctx.fillStyle = '#ffe9c7'; ctx.font = '22px system-ui'; ctx.fillText('Smaller. Faster. Hotter.', W / 2, H / 2);
+      if (g.lives > 0) {
+        ctx.fillStyle = '#ffb347'; ctx.font = 'bold 44px system-ui'; ctx.fillText('REBIRTH IN ' + (Math.ceil(g.bird.deadTimer * 10) / 10).toFixed(1), W / 2, H / 2 - 40);
+        ctx.fillStyle = '#ffe9c7'; ctx.font = '22px system-ui'; ctx.fillText('Smaller. Faster. Hotter.', W / 2, H / 2);
+      } else {
+        ctx.fillStyle = '#ff6b4d'; ctx.font = 'bold 44px system-ui'; ctx.fillText('BURNED OUT', W / 2, H / 2 - 40);
+        ctx.fillStyle = '#ffe9c7'; ctx.font = '22px system-ui'; ctx.fillText('No lives left.', W / 2, H / 2);
+      }
     }
 
     for (const f of g.floaters) { ctx.globalAlpha = Math.min(1, f.life * 2); ctx.fillStyle = f.color; ctx.font = `bold ${f.size}px system-ui`; ctx.textAlign = 'center'; ctx.fillText(f.text, f.x, f.y); }

@@ -30,3 +30,8 @@
 - `coins/coin_16x16.png` — "Pixel Coins" by TotusLotus, coin2 strip (fourteen 16x16 frames).
   Source: https://totuslotus.itch.io/pixel-coins
   Used unmodified as the collectible pickup.
+
+- `hearts/heart_spritesheet_32x32.png` — "2D Heart Assets" by AXIALE.
+  Source: https://axiale.itch.io/2d-heart-assets
+  License per the asset page: use anywhere, credit appreciated. No generative AI was used.
+  The game shows the full heart for lives remaining and the empty heart for lives lost.

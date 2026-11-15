@@ -2,8 +2,9 @@
 
 Hack Haven NYC 2026. Theme: **Bounce Back**.
 
-A 90-second canvas flyer where crashing never ends the run. You burn, rise
-again smaller and faster, and every rebirth raises your Heat multiplier.
+A 90-second canvas flyer with three lives. Crash and you burn, then rise again
+smaller and faster, and every rebirth raises your Heat multiplier. Lose all
+three lives and the run ends early.
 Plain HTML, CSS, and JavaScript. No build step, no dependencies.
 
 ## Run it
@@ -39,6 +40,7 @@ Open http://localhost:8000. Double-clicking `index.html` also works.
 - Golden coins are rare and worth `60 × size × heat`, and grow you three times as much.
 - Size grows with every coin up to 2.6x. Bigger means more points but a bigger hitbox and less agility.
 - Distance adds a small trickle.
+- You start with 3 lives. Each crash costs one. At zero the run ends, whatever the timer says.
 - Crashing resets size to 0.55x and starts a 1.5 second rebirth. On rebirth, Heat goes up by 0.5 and world speed increases.
 - After rebirth you get 2.5 seconds of Second Wind: invulnerable, coins are pulled toward you, and coins pay double.
 - Best score is saved in the browser.
@@ -73,3 +75,5 @@ time can all be changed there without touching game logic.
   [CraftPix](https://craftpix.net/freebies/free-flame-effects-sprite-pack/).
 - Coins: "Pixel Coins" by TotusLotus, free for personal and commercial use, from
   [itch.io](https://totuslotus.itch.io/pixel-coins).
+- Hearts: "2D Heart Assets" by AXIALE, free to use, from
+  [itch.io](https://axiale.itch.io/2d-heart-assets).
