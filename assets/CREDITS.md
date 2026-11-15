@@ -54,7 +54,7 @@
   License: free to use, no attribution required). Plays once when the dragon enters the finale.
   Confirm the source page before any release outside the hackathon.
 
-- `audio/phoenix_screech.mp3` — "Phoenix Screech 1" from the freesound_community collection,
-  downloaded by the team and trimmed with mp3cut.net (the filename matches Pixabay sound 107784,
-  Pixabay Content License: free to use, no attribution required). Plays the moment the phoenix dies.
+- `audio/bgm.mp3` — "Beat Background" by BleskSound, downloaded by the team and supplied to the
+  project (the filename matches Pixabay music 605312, Pixabay Content License: free to use, no
+  attribution required). Loops quietly from the start of a run until the dragon arrives.
   Confirm the source page before any release outside the hackathon.

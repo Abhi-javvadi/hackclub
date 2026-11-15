@@ -161,17 +161,26 @@
   for (let i = 1; i <= 5; i++) { const im = new Image(); im.onload = () => { FIREBALL.loaded++; }; im.src = `assets/fireball/fb_0${i}.png`; FIREBALL.frames.push(im); }
 
   // ---------------------------------------------------------------- audio
-  // The game is silent by decision. Every call site still goes through this object so sound can be
-  // reintroduced later without touching game logic.
-  // Two exceptions: a dragon roar when the dragon enters the finale, and a phoenix screech every time the phoenix dies.
+  // Two sounds only: a quiet background track that plays from the start of a run until the dragon
+  // arrives, and the dragon roar that takes over at that moment. Everything else is silent.
+  const bgmEl = new window.Audio('assets/audio/bgm.mp3'); bgmEl.loop = true; bgmEl.volume = 0.22; bgmEl.preload = 'auto';
   const roarEl = new window.Audio('assets/audio/dragon_roar.mp3'); roarEl.volume = 0.7; roarEl.preload = 'auto';
-  const screechEl = new window.Audio('assets/audio/phoenix_screech.mp3'); screechEl.volume = 0.8; screechEl.preload = 'auto';
   const play = el => { try { el.currentTime = 0; el.play().catch(() => {}); } catch {} };
+  let bgmFade = null;
+  const BGM_VOLUME = 0.22;
   const Audio = {
-    unlock() { try { roarEl.load(); screechEl.load(); } catch {} },     // a user gesture has happened by now, so later playback is allowed
+    unlock() { try { bgmEl.load(); roarEl.load(); } catch {} },     // a user gesture has happened by now, so later playback is allowed
     toggleMute() { return true; }, muted: true,
-    ember() {}, gold() {}, tick() {}, finish() {}, rebirth() {},
-    crash() { play(screechEl); },     // the screech sounds the instant the phoenix dies
+    ember() {}, gold() {}, tick() {}, finish() {}, rebirth() {}, crash() {},
+    bgmStart() { clearInterval(bgmFade); bgmEl.volume = BGM_VOLUME; play(bgmEl); },
+    bgmPause() { try { bgmEl.pause(); } catch {} },
+    bgmResume() { if (game.phase === 'running' && !game.finale) { try { bgmEl.play().catch(() => {}); } catch {} } },
+    bgmStop(fadeSeconds = 0) {
+      clearInterval(bgmFade);
+      if (!fadeSeconds) { try { bgmEl.pause(); } catch {} return; }
+      const steps = 20, dv = bgmEl.volume / steps; let n = 0;
+      bgmFade = setInterval(() => { bgmEl.volume = Math.max(0, bgmEl.volume - dv); if (++n >= steps) { clearInterval(bgmFade); try { bgmEl.pause(); } catch {} } }, fadeSeconds * 1000 / steps);
+    },
     roar() { play(roarEl); },
   };
 
@@ -200,8 +209,8 @@
     else if (game.phase === 'paused') togglePause();
   }
   function togglePause(force) {
-    if (game.phase === 'running' || force) { game.phase = 'paused'; ui.paused.hidden = false; }
-    else if (game.phase === 'paused') { game.phase = 'running'; ui.paused.hidden = true; last = performance.now(); }
+    if (game.phase === 'running' || force) { game.phase = 'paused'; ui.paused.hidden = false; Audio.bgmPause(); }
+    else if (game.phase === 'paused') { game.phase = 'running'; ui.paused.hidden = true; last = performance.now(); Audio.bgmResume(); }
   }
 
   // ---------------------------------------------------------------- state
@@ -228,6 +237,7 @@
     };
     ui.title.hidden = true; ui.results.hidden = true; ui.paused.hidden = true; ui.hud.hidden = false;
     last = performance.now();
+    Audio.bgmStart();
   }
 
   // ---------------------------------------------------------------- spawning
@@ -439,6 +449,7 @@
     g.finale = true;
     g.obstacles.length = 0;                     // the cave clears for the boss
     g.dragon.x = W + 400; g.dragon.y = H * 0.42;
+    Audio.bgmStop(0.5);
     Audio.roar();
   }
   function updateDragon(dt) {
@@ -537,6 +548,7 @@
     const g = game;
     g.phase = 'results';
     g.over = reason === 'lives';
+    Audio.bgmStop(0.4);
     ui.resHeading.textContent = g.over ? 'GAME OVER' : "TIME'S UP";
     const score = Math.round(g.score), best = loadBest();
     const isBest = score > best;
@@ -696,7 +708,7 @@
 
   // idle backdrop under the title
   (function boot() {
-    startRun(); game.phase = 'title'; draw();
+    startRun(); game.phase = 'title'; Audio.bgmStop(); draw();
     ui.hud.hidden = true; ui.title.hidden = false;
     requestAnimationFrame(frame);
   })();
