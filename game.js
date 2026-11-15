@@ -262,6 +262,12 @@
 
   function spawnObstacle() {
     const g = game, r = Math.random(), tier = Math.min(1, g.t / 60);
+    const n0 = g.obstacles.length;
+    spawnObstacleInner(g, r, tier);
+    const o = g.obstacles[n0];
+    if (o) g.pickups = g.pickups.filter(p => !(p.x > W - 420 && insideObstacle(o, p.x, p.y, COIN_CLEARANCE)));
+  }
+  function spawnObstacleInner(g, r, tier) {
     const chainLen = () => 40 + Math.random() * (130 + tier * 50);
     if (r < 0.26) {
       // spike block hanging from the ceiling
@@ -292,14 +298,45 @@
         spin: Math.random() * 6.28, spinV: (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 3) });
     }
   }
+  // Does point (x, y) fall inside obstacle o's footprint, padded by margin? Used to keep coins off hazards.
+  // Swinging things get extra horizontal room for their arc.
+  function insideObstacle(o, x, y, margin) {
+    const within = (x0, y0, x1, y1) => x >= x0 - margin && x <= x1 + margin && y >= y0 - margin && y <= y1 + margin;
+    if (o.type === 'hang' || o.type === 'swing') {
+      const len = o.chain + o.bh * 0.5, arc = Math.sin(o.sway) * len + 10;
+      const cx = o.x + o.w / 2, cy = len;
+      if (Math.abs(x - cx) <= o.bw / 2 + arc + margin && Math.abs(y - cy) <= o.bh / 2 + margin) return true;
+      return Math.abs(x - cx) <= arc + o.cw && y <= o.chain + margin;          // the chain column
+    }
+    if (o.type === 'log') {
+      if (within(o.x, o.chain, o.x + o.sw, o.chain + o.sh)) return true;
+      return (Math.abs(x - (o.x + o.sw * 0.31)) <= o.cw || Math.abs(x - (o.x + o.sw * 0.65)) <= o.cw) && y <= o.chain + margin;
+    }
+    if (o.type === 'post') {
+      const px = o.x + o.w / 2;
+      return within(px - o.pw / 2, o.y, px + o.pw / 2, GROUND) || Math.hypot(x - px, y - o.y) <= o.bs / 2 + margin;
+    }
+    return Math.hypot(x - (o.x + o.w / 2), y - (o.y + o.h / 2)) <= o.w / 2 + margin;   // blade
+  }
+  const COIN_CLEARANCE = 34;
+  function coinBlocked(x, y) { return game.obstacles.some(o => o.x > W - 420 && insideObstacle(o, x, y, COIN_CLEARANCE)); }
+  function placeCoin(x, y, phase) {
+    // keep the requested height if it is clear; otherwise try a handful of other heights, else skip the coin
+    const g = game;
+    if (!coinBlocked(x, y)) { g.pickups.push({ x, y, r: 11, gold: false, phase }); return; }
+    for (let i = 0; i < 8; i++) {
+      const yy = 90 + Math.random() * (GROUND - 180);
+      if (!coinBlocked(x, yy)) { g.pickups.push({ x, y: yy, r: 11, gold: false, phase }); return; }
+    }
+  }
+
   function spawnEmber() {
-    const g = game, gold = false;   // single coin type
     // sometimes spawn a short arc of coins to encourage a path
     if (Math.random() < 0.3) {
       const y0 = 120 + Math.random() * (GROUND - 260), dir = Math.random() < 0.5 ? 1 : -1;
-      for (let i = 0; i < 5; i++) g.pickups.push({ x: W + 40 + i * 46, y: y0 + Math.sin(i * 0.7) * 60 * dir, r: 11, gold: false, phase: i * 0.5 });
+      for (let i = 0; i < 5; i++) placeCoin(W + 40 + i * 46, y0 + Math.sin(i * 0.7) * 60 * dir, i * 0.5);
     } else {
-      g.pickups.push({ x: W + 40, y: 90 + Math.random() * (GROUND - 180), r: 11, gold, phase: Math.random() * 6.28 });
+      placeCoin(W + 40, 90 + Math.random() * (GROUND - 180), Math.random() * 6.28);
     }
   }
 
