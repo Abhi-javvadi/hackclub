@@ -73,9 +73,9 @@
   }
 
   // Obstacles: "2d obstacle collection" by Game Developer Studio (Robert Brooks), CC-BY 4.0, OpenGameArt.
-  // Ground spikes, hanging spike blocks on chains, and rotating saw blades. The chain is the pack's own
+  // Hanging spike blocks on chains and rotating saw blades. The chain is the pack's own
   // chain piece repeated end to end at draw time, so longer chains never need new artwork.
-  const TRAPS = { names: ['spikes_1', 'spikes_2', 'block_1', 'block_2', 'chain', 'blade_1', 'blade_2', 'blade_3'], img: {}, loaded: 0,
+  const TRAPS = { names: ['block_1', 'block_2', 'chain', 'blade_1', 'blade_2', 'blade_3'], img: {}, loaded: 0,
     get ready() { return this.loaded === this.names.length; } };
   for (const n of TRAPS.names) { const im = new Image(); im.onload = () => { TRAPS.loaded++; }; im.src = `assets/traps/${n}.png`; TRAPS.img[n] = im; }
   const CHAIN_ASPECT = 440 / 54, CHAIN_OVERLAP = 0.12;   // links overlap slightly so the seam between pieces hides
@@ -178,13 +178,7 @@
 
   function spawnObstacle() {
     const g = game, r = Math.random(), tier = Math.min(1, g.t / 60);
-    if (r < 0.36) {
-      // ground spike cluster
-      const variant = Math.random() < 0.5 ? 'spikes_1' : 'spikes_2';
-      const w = 120 + Math.random() * (90 + tier * 40);
-      const h = w * 0.6 * (1 + Math.random() * 0.6 + tier * 0.35);
-      g.obstacles.push({ type: 'spikes', variant, x: W + 80, y: GROUND - h + 4, w, h });
-    } else if (r < 0.7) {
+    if (r < 0.52) {
       // spike block hanging from the ceiling on a chain
       const variant = Math.random() < 0.5 ? 'block_1' : 'block_2';
       const bw = 92 + Math.random() * 56;
@@ -193,7 +187,7 @@
       const cw = Math.max(26, bw * 0.24);
       g.obstacles.push({ type: 'hang', variant, x: W + 80, y: 0, w: bw, h: chain + bh, bw, bh, chain, cw,
         phase: Math.random() * 6.28, sway: 0.08 + Math.random() * 0.08, cx: 0, cy: 0 });
-    } else if (r < 0.88) {
+    } else if (r < 0.86) {
       // rotating saw blade
       const s = 76 + Math.random() * 60;
       g.obstacles.push({ type: 'blade', variant: 'blade_' + (1 + Math.floor(Math.random() * 3)), x: W + 80, y: 110 + Math.random() * (GROUND - 220 - s), w: s, h: s,
@@ -300,12 +294,7 @@
       if (b.grace <= 0) {
         for (const o of g.obstacles) {
           let hit = false;
-          if (o.type === 'spikes') {
-            // box with a forgiving inset; the tips are the top quarter
-            const x0 = o.x + o.w * 0.08, x1 = o.x + o.w * 0.92, y0 = o.y + o.h * 0.22;
-            const cx = Math.max(x0, Math.min(b.x, x1)), cy = Math.max(y0, Math.min(b.y, GROUND));
-            hit = Math.hypot(cx - b.x, cy - b.y) < hb;
-          } else if (o.type === 'hang') {
+          if (o.type === 'hang') {
             hit = Math.hypot(o.cx - b.x, o.cy - b.y) < hb + o.bw * 0.44;   // the block is lethal, the chain is not
           } else {
             const cx = o.x + o.w / 2, cy = o.y + o.h / 2;
@@ -451,21 +440,9 @@
     ctx.save();
     if (g.shake > 0) ctx.translate((Math.random() - 0.5) * g.shake, (Math.random() - 0.5) * g.shake);
 
-    const heatTint = Math.min(1, (g.heat - 1) / 4);
     if (CAVE.ready) {
-      // back wall through to mid rocks
-      for (let i = 0; i < 6; i++) drawCaveLayer(CAVE.layers[i], g.ridgeOff);
-      // warm the cave as Heat rises
-      ctx.fillStyle = `rgba(255,${90 - heatTint * 30},20,${0.08 + heatTint * 0.22})`; ctx.fillRect(-20, -20, W + 40, H + 40);
-      // drifting embers / dust
-      ctx.fillStyle = '#ffb347';
-      for (const st of g.stars) { ctx.globalAlpha = 0.15 + Math.sin(g.t * 2 + st.x) * 0.12; ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, 6.28); ctx.fill(); }
-      ctx.globalAlpha = 1;
-      // lava floor under the near rocks
-      const lava = ctx.createLinearGradient(0, GROUND - 40, 0, H);
-      lava.addColorStop(0, 'rgba(255,90,0,0)'); lava.addColorStop(0.5, `rgba(255,90,0,${0.35 + heatTint * 0.3})`); lava.addColorStop(1, 'rgba(255,140,30,0.6)');
-      ctx.fillStyle = lava; ctx.fillRect(-20, GROUND - 40, W + 40, H - GROUND + 60);
-      drawCaveLayer(CAVE.layers[6], g.ridgeOff);
+      // Admurin's layers drawn as shipped, back wall to near rocks, nothing composited on top
+      for (const layer of CAVE.layers) drawCaveLayer(layer, g.ridgeOff);
     } else {
       const sky = ctx.createLinearGradient(0, 0, 0, H);
       sky.addColorStop(0, '#0b0a1a'); sky.addColorStop(1, '#2a0f1e');
@@ -474,10 +451,7 @@
     }
 
     for (const o of g.obstacles) {
-      if (o.type === 'spikes') {
-        if (TRAPS.ready) { ctx.imageSmoothingEnabled = true; ctx.drawImage(TRAPS.img[o.variant], o.x, o.y, o.w, o.h); }
-        else { ctx.fillStyle = '#4a2a35'; ctx.fillRect(o.x, o.y, o.w, o.h); }
-      } else if (o.type === 'hang') {
+      if (o.type === 'hang') {
         ctx.save(); ctx.translate(o.x + o.w / 2, 0); ctx.rotate(o.ang || 0);
         if (TRAPS.ready) {
           ctx.imageSmoothingEnabled = true;

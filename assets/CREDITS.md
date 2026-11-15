@@ -14,6 +14,5 @@
 - `traps/` — "2d obstacle collection" by Game Developer Studio (Robert Brooks), licensed
   CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
   Source: https://opengameart.org/content/2d-obstacle-collection
-  Used: spikes_1, spikes_2, swinging_spike_block, swinging_spike_block_2, long_chain_piece,
-  blade_1, blade_2, blade_3. Files were downscaled; no other changes. Longer chains in the game
+  Used: swinging_spike_block, swinging_spike_block_2, long_chain_piece, blade_1, blade_2, blade_3. Files were downscaled; no other changes. Longer chains in the game
   are the original chain piece repeated end to end at draw time.
