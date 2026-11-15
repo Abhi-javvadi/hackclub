@@ -50,6 +50,13 @@ Every number that matters is in the `CFG` object at the top of `game.js`.
 Run length, speed ramp, gravity, ember values, heat per rebirth, and grace
 time can all be changed there without touching game logic.
 
+## Finale
+
+For the last 10 seconds all hazards stop spawning and any on screen are cleared.
+The shadow dragon enters from the right and holds position, playing its attack
+animation on a cycle. Its projectiles are wired through `dragonFire()` in
+`game.js` and are added separately.
+
 ## Hazards
 
 - Spike blocks hanging from the ceiling on swaying chains. The block is lethal, the chain is not.
@@ -76,3 +83,5 @@ time can all be changed there without touching game logic.
   [itch.io](https://totuslotus.itch.io/pixel-coins).
 - Hearts: "2D Heart Assets" by AXIALE, free to use, from
   [itch.io](https://axiale.itch.io/2d-heart-assets).
+- Finale dragon: "Shadow Demon Dragon" by Vinzes, free for commercial use, from
+  [itch.io](https://vinzes.itch.io/epic-2d-pixel-art-shadow-demon-dragon-with-10-animations-sfx).

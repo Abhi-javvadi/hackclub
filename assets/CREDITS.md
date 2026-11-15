@@ -35,3 +35,10 @@
   Source: https://axiale.itch.io/2d-heart-assets
   License per the asset page: use anywhere, credit appreciated. No generative AI was used.
   The game shows the full heart for lives remaining and the empty heart for lives lost.
+
+- `dragon/` — "Epic 2D Pixel Art Shadow Demon Dragon with 10 Animations & SFX" by Vinzes.
+  Source: https://vinzes.itch.io/epic-2d-pixel-art-shadow-demon-dragon-with-10-animations-sfx
+  License per the asset page: free for commercial use, modification allowed, credit appreciated
+  but not required, no reselling or redistributing the asset files on their own.
+  The game uses cropped and downscaled frames from Idle_Left and Attack_Left, plus the attack roar.
+  The author discloses the sound effects as AI assisted. The dragon appears for the final seconds.

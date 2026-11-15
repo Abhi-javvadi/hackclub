@@ -7,6 +7,7 @@
   // ---------------------------------------------------------------- config
   const CFG = {
     runSeconds: 90,
+    finaleSeconds: 10,      // last stretch: obstacles stop, the dragon arrives
     lives: 5,               // run ends when these are gone, whatever the clock says
     worldSpeed: 380,        // px/s at start
     speedRamp: 5,           // px/s gained per second
@@ -140,6 +141,22 @@
     ctx.drawImage(COIN.img, f * COIN.fw, 0, COIN.fw, COIN.fh, x - size / 2, y - size / 2, size, size);
   }
 
+  // Finale boss: "Shadow Demon Dragon" by Vinzes (itch.io), free for commercial use, credit appreciated.
+  // Frames cropped from the Idle_Left and Attack_Left sheets and scaled to 506x256. It arrives for the
+  // last stretch of the run; its projectiles are added separately.
+  const DRAGON = {
+    idle: [], attack: [], loaded: 0, total: 20, scale: 1.0,
+    get ready() { return this.loaded === this.total; },
+  };
+  ['idle', 'attack'].forEach(name => {
+    for (let i = 0; i < 10; i++) {
+      const im = new Image(); im.onload = () => { DRAGON.loaded++; };
+      im.src = `assets/dragon/${name}_${String(i).padStart(2, '0')}.png`;
+      DRAGON[name].push(im);
+    }
+  });
+  const roarEl = new window.Audio('assets/dragon/roar.mp3'); roarEl.volume = 0.6;
+
   // ---------------------------------------------------------------- audio (synthesized, no files)
   const Audio = (() => {
     let ac = null, muted = false, master;
@@ -174,6 +191,7 @@
       crash() { noise({ dur: 0.7, vol: 0.5, lowpass: 600 }); tone({ f: 180, f2: 40, dur: 0.5, vol: 0.35, type: 'sawtooth' }); },
       rebirth() { tone({ f: 200, f2: 1400, dur: 0.6, vol: 0.25, type: 'sawtooth' }); noise({ dur: 0.4, vol: 0.2, lowpass: 3000 }); },
       tick() { tone({ f: 1000, f2: 1000, dur: 0.06, vol: 0.12, type: 'square' }); },
+      roar() { if (muted) return; try { roarEl.currentTime = 0; roarEl.play().catch(() => {}); } catch {} },
       finish() { [0, 0.12, 0.24, 0.42].forEach((at, i) => tone({ f: [523, 659, 784, 1046][i], f2: [523, 659, 784, 1046][i], dur: 0.35, vol: 0.22, type: 'triangle', at })); },
     };
   })();
@@ -222,7 +240,8 @@
   function startRun() {
     game = {
       phase: 'running', t: 0, timeLeft: CFG.runSeconds, lastTick: -1,
-      score: 0, embers: 0, dist: 0, rebirths: 0, lives: CFG.lives, over: false, heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
+      score: 0, embers: 0, dist: 0, rebirths: 0, lives: CFG.lives, over: false,
+      finale: false, dragon: { x: W + 400, y: 0, anim: 0, attackT: -1, bob: 0, nextAttack: 1.2 }, heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
       speed: CFG.worldSpeed,
       bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, anim: 0, reborn: 0 },
       obstacles: [], pickups: [], particles: [], floaters: [], eruptions: [],
@@ -310,8 +329,12 @@
 
     for (const st of g.stars) { st.x -= st.s * dt; if (st.x < 0) { st.x = W; st.y = Math.random() * GROUND; } }
 
-    g.spawnTimer -= dt;
-    if (g.spawnTimer <= 0) { spawnObstacle(); g.spawnTimer = Math.max(0.5, 1.45 - g.speed / 1000) + Math.random() * 0.45; }
+    if (!g.finale && g.timeLeft <= CFG.finaleSeconds) startFinale();
+    if (g.finale) updateDragon(dt);
+    else {
+      g.spawnTimer -= dt;
+      if (g.spawnTimer <= 0) { spawnObstacle(); g.spawnTimer = Math.max(0.5, 1.45 - g.speed / 1000) + Math.random() * 0.45; }
+    }
     g.emberTimer -= dt;
     if (g.emberTimer <= 0) { spawnEmber(); g.emberTimer = 0.5 + Math.random() * 0.55; }
 
@@ -395,6 +418,25 @@
     g.flash = Math.max(0, g.flash - dt * 2);
 
     updateHud();
+  }
+
+  function startFinale() {
+    const g = game;
+    g.finale = true;
+    g.obstacles.length = 0;                     // the cave clears for the boss
+    g.dragon.x = W + 400; g.dragon.y = H * 0.42;
+    Audio.roar();
+  }
+  function updateDragon(dt) {
+    const d = game.dragon;
+    d.anim += dt * 8; d.bob += dt;
+    d.x = Math.max(W - 300, d.x - 260 * dt);     // slides in from the right, then holds position
+    d.y = H * 0.42 + Math.sin(d.bob * 1.4) * 14;
+    if (d.attackT >= 0) { d.attackT += dt; if (d.attackT > 1.1) d.attackT = -1; }
+    else if (d.x <= W - 300) { d.nextAttack -= dt; if (d.nextAttack <= 0) { d.attackT = 0; d.nextAttack = 1.6 + Math.random() * 1.2; dragonFire(); } }
+  }
+  function dragonFire() {
+    // projectile hook: fired at the start of each attack animation. Filled in when the projectile asset arrives.
   }
 
   function collect(p) {
@@ -507,6 +549,16 @@
     ctx.restore();
   }
 
+  function drawDragon() {
+    if (!DRAGON.ready) return;
+    const d = game.dragon, attacking = d.attackT >= 0;
+    const frames = attacking ? DRAGON.attack : DRAGON.idle;
+    const idx = attacking ? Math.min(9, Math.floor(d.attackT / 1.1 * 10)) : Math.floor(d.anim) % 10;
+    const im = frames[idx], w = im.width * DRAGON.scale, h = im.height * DRAGON.scale;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(im, d.x - w / 2 + (attacking ? -30 * Math.sin(Math.min(1, d.attackT) * Math.PI) : 0), d.y - h / 2, w, h);
+  }
+
   function draw() {
     const g = game;
     ctx.save();
@@ -563,6 +615,8 @@
       if (COIN.ready) drawCoin(p.x, p.y, p.r * 2.9, g.t, p.phase);
       else { ctx.fillStyle = '#d98c3a'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }
     }
+
+    if (g.finale) drawDragon();
 
     for (const p of g.particles) { ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (p.life / p.max), 0, 6.28); ctx.fill(); }
     ctx.globalAlpha = 1;
