@@ -54,7 +54,6 @@
   License: free to use, no attribution required). Plays once when the dragon enters the finale.
   Confirm the source page before any release outside the hackathon.
 
-- `audio/bgm.mp3` — "Beat Background" by BleskSound, downloaded by the team and supplied to the
-  project (the filename matches Pixabay music 605312, Pixabay Content License: free to use, no
-  attribution required). Loops quietly from the start of a run until the dragon arrives.
-  Confirm the source page before any release outside the hackathon.
+- `audio/bgm.mp3` — "8-bit - Perilous Dungeon" by HydroGene, licensed CC0 (public domain).
+  Source: https://opengameart.org/content/8-bit-perilous-dungeon
+  Used unmodified. Loops quietly from the start of a run until the dragon arrives.

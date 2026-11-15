@@ -163,7 +163,8 @@
   // ---------------------------------------------------------------- audio
   // Two sounds only: a quiet background track that plays from the start of a run until the dragon
   // arrives, and the dragon roar that takes over at that moment. Everything else is silent.
-  const bgmEl = new window.Audio('assets/audio/bgm.mp3'); bgmEl.loop = true; bgmEl.volume = 0.08; bgmEl.preload = 'auto';
+  // Background track: "8-bit - Perilous Dungeon" by HydroGene, CC0.
+  const bgmEl = new window.Audio('assets/audio/bgm.mp3?v=2'); bgmEl.loop = true; bgmEl.volume = 0.08; bgmEl.preload = 'auto';
   const roarEl = new window.Audio('assets/audio/dragon_roar.mp3'); roarEl.volume = 0.3; roarEl.preload = 'auto';
   const play = el => { try { el.currentTime = 0; el.play().catch(() => {}); } catch {} };
   let bgmFade = null;

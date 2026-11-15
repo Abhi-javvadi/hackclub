@@ -86,4 +86,5 @@ from two to four shots, come more often, and fly faster as the clock runs down. 
   [itch.io](https://vinzes.itch.io/epic-2d-pixel-art-shadow-demon-dragon-with-10-animations-sfx).
 - Fireball: "Fireball Effect" by NYKNCK, from [itch.io](https://nyknck.itch.io/pixelarteffectfx017).
 - Dragon roar: "Epic Dragon Roar" by Dragon Studio (Pixabay).
-- Background music: "Beat Background" by BleskSound (Pixabay).
+- Background music: "8-bit - Perilous Dungeon" by HydroGene, CC0, from
+  [OpenGameArt](https://opengameart.org/content/8-bit-perilous-dungeon).
