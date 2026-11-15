@@ -93,9 +93,16 @@
     for (let x = -shift - tw; x < W + tw; x += tw) ctx.drawImage(LAVA.img, frame * LAVA.fw, 0, LAVA.fw, LAVA.fh, x, y, tw, th);
   }
 
-  // Bottom eruptions: frame-sequence animations that burst up out of the lava.
-  // Frames are supplied by ERUPTION.frames (an array of Image). Empty until an effect pack is wired in.
-  const ERUPTION = { frames: [], fps: 18, ready: false, timer: 2 + Math.random() * 3 };
+  // Bottom eruptions: "Free Flame Effects Sprite Pack" by CraftPix.net (freebie license: free for
+  // personal and commercial games, modification allowed, credit appreciated). Effect flame1, 28 frames,
+  // cropped to the shared bounding box and downscaled to 320x249. Bursts rise out of the lava.
+  const ERUPTION = { frames: [], fps: 18, ready: false, loaded: 0, count: 28, timer: 2 + Math.random() * 3 };
+  for (let i = 0; i < ERUPTION.count; i++) {
+    const im = new Image();
+    im.onload = () => { if (++ERUPTION.loaded === ERUPTION.count) ERUPTION.ready = true; };
+    im.src = `assets/eruption/${String(i).padStart(2, '0')}.png`;
+    ERUPTION.frames.push(im);
+  }
   function spawnEruption() {
     if (!ERUPTION.ready || ERUPTION.frames.length === 0) return;
     const im = ERUPTION.frames[0], scale = 1.1 + Math.random() * 0.8;
@@ -114,7 +121,8 @@
     for (const e of game.eruptions) {
       const idx = Math.min(ERUPTION.frames.length - 1, Math.floor(e.t / e.dur * ERUPTION.frames.length));
       // anchored at the lava surface so the burst rises out of the bottom of the screen
-      ctx.drawImage(ERUPTION.frames[idx], e.x - e.w / 2, H - 20 - e.h, e.w, e.h);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(ERUPTION.frames[idx], e.x - e.w / 2, H - 14 - e.h, e.w, e.h);
     }
   }
 

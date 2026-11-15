@@ -20,3 +20,8 @@
 - `lava/lava_strip8.png` — "animated lava 16x32", CC0 (public domain).
   Source: https://opengameart.org/content/animated-lava-16x32
   Eight 16x32 frames in one strip, tiled along the bottom of the screen.
+
+- `eruption/` — "Free Flame Effects Sprite Pack" by CraftPix.net, effect flame1 (28 frames).
+  Source: https://craftpix.net/freebies/free-flame-effects-sprite-pack/
+  License: CraftPix freebie license (https://craftpix.net/file-licenses/), free for personal and
+  commercial games, modification allowed, no attribution required. Frames cropped and downscaled.

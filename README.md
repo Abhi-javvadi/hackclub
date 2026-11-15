@@ -67,3 +67,5 @@ time can all be changed there without touching game logic.
   chain piece tiled at draw time.
 - Lava floor: "animated lava 16x32", CC0, from
   [OpenGameArt](https://opengameart.org/content/animated-lava-16x32).
+- Lava eruptions: "Free Flame Effects Sprite Pack" by CraftPix.net, freebie license, from
+  [CraftPix](https://craftpix.net/freebies/free-flame-effects-sprite-pack/).
