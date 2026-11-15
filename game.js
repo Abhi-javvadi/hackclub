@@ -39,8 +39,7 @@
     resHeading: $('res-heading'),
     title: $('title'), results: $('results'), paused: $('paused'),
     againBtn: $('again-btn'),
-    resScore: $('res-score'), resBest: $('res-best'), resDist: $('res-dist'), resEmbers: $('res-embers'),
-    resRebirths: $('res-rebirths'), resSize: $('res-size'), resStreak: $('res-streak'),
+    resScore: $('res-score'), resBest: $('res-best'), resEmbers: $('res-embers'), resStreak: $('res-streak'),
   };
 
   // ---------------------------------------------------------------- sprites
@@ -541,10 +540,7 @@
     if (isBest) saveBest(score);
     ui.resScore.textContent = score.toLocaleString();
     ui.resBest.textContent = isBest ? 'new best' : 'best ' + best.toLocaleString();
-    ui.resDist.textContent = Math.round(g.dist).toLocaleString() + ' m';
     ui.resEmbers.textContent = g.embers;
-    ui.resRebirths.textContent = g.rebirths;
-    ui.resSize.textContent = g.peakSize.toFixed(1) + 'x';
     ui.resStreak.textContent = g.bestStreak;
     ui.results.hidden = false; ui.hud.hidden = true;
     Audio.finish();
