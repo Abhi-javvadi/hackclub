@@ -331,7 +331,9 @@
     const radius = birdRadius();
     if (b.alive) {
       b.grace = Math.max(0, b.grace - dt);
-      const agility = 1 + (1 - b.size) * 0.8;
+      // Smaller is nimbler, bigger is heavier, but never helpless: the old formula reached zero
+      // thrust at 2.25x size. Now it slopes gently and floors at 85% control.
+      const agility = Math.max(0.85, Math.min(1.3, 1 + (1 - b.size) * 0.25));
       const up = input.up || input.hold, down = input.down;
       if (up) b.vy -= CFG.thrust * agility * dt;
       if (down) b.vy += CFG.thrust * agility * dt;
