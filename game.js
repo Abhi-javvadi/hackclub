@@ -38,7 +38,7 @@
     time: $('hud-time'), timerFill: $('timer-fill'), hearts: [...document.querySelectorAll('#hud-lives .heart')],
     resHeading: $('res-heading'),
     title: $('title'), results: $('results'), paused: $('paused'),
-    startBtn: $('start-btn'), againBtn: $('again-btn'),
+    againBtn: $('again-btn'),
     resScore: $('res-score'), resBest: $('res-best'), resDist: $('res-dist'), resEmbers: $('res-embers'),
     resRebirths: $('res-rebirths'), resSize: $('res-size'), resStreak: $('res-streak'),
   };
@@ -217,7 +217,7 @@
   canvas.addEventListener('pointerdown', pointerDown);
   addEventListener('pointerup', pointerUp);
   addEventListener('pointercancel', pointerUp);
-  ui.startBtn.addEventListener('click', onPrimary);
+  ui.title.addEventListener('pointerdown', onPrimary);   // no start button: space, or a tap anywhere on the title, begins the run
   ui.againBtn.addEventListener('click', onPrimary);
   addEventListener('blur', () => { if (game.phase === 'running') togglePause(true); });
 
