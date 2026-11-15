@@ -41,7 +41,7 @@ Open http://localhost:8000. Double-clicking `index.html` also works.
 - Distance adds a small trickle.
 - You start with 5 lives. Each crash costs one. At zero the run ends, whatever the timer says.
 - Crashing resets size to 0.55x and starts a 1.5 second rebirth. On rebirth, Heat goes up by 0.5 and world speed increases.
-- After rebirth you get 2.5 seconds of Second Wind: invulnerable, coins are pulled toward you, and coins pay double.
+- After rebirth you get 2.5 seconds of Second Wind: invulnerable, and coins pay double.
 - Best score is saved in the browser.
 
 ## Tuning

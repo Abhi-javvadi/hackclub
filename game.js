@@ -23,7 +23,7 @@
     emberValue: 10,         // × size × heat
     heatPerRebirth: 0.5,    // Heat multiplier grows by this per rebirth
     rebirthDelay: 1.5,
-    graceSeconds: 2.5,      // invulnerable + magnet + double embers after rebirth
+    graceSeconds: 2.5,      // invulnerable + double coins after rebirth
     distancePerPx: 0.1,
   };
 
@@ -346,10 +346,9 @@
 
       b.anim += dt * (12 + Math.abs(b.vy) / 60);   // flap faster when working hard
       b.reborn = Math.max(0, b.reborn - dt);
-      // pickups (magnet during grace)
+      // pickups
       for (let i = g.pickups.length - 1; i >= 0; i--) {
         const p = g.pickups[i], d = Math.hypot(p.x - b.x, p.y - b.y);
-        if (b.grace > 0 && d < 220) { p.x += (b.x - p.x) * 6 * dt; p.y += (b.y - p.y) * 6 * dt; }
         if (d < radius + p.r) {
           g.pickups.splice(i, 1);
           collect(p);
