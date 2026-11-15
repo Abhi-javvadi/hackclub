@@ -129,6 +129,16 @@
     }
   }
 
+  // Coins: "Pixel Coins" by TotusLotus (itch.io), coin2 strip, fourteen 16x16 frames of a spinning bronze coin.
+  const COIN = { img: new Image(), ready: false, fw: 16, fh: 16, frames: 14, fps: 14 };
+  COIN.img.onload = () => { COIN.ready = true; };
+  COIN.img.src = 'assets/coins/coin_16x16.png';
+  function drawCoin(x, y, size, t, phase) {
+    const f = Math.floor(t * COIN.fps + phase * 2) % COIN.frames;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(COIN.img, f * COIN.fw, 0, COIN.fw, COIN.fh, x - size / 2, y - size / 2, size, size);
+  }
+
   // ---------------------------------------------------------------- audio (synthesized, no files)
   const Audio = (() => {
     let ac = null, muted = false, master;
@@ -399,7 +409,7 @@
     b.size = Math.min(CFG.maxSize, b.size + CFG.emberGrow * (p.gold ? 3 : 1));
     g.peakSize = Math.max(g.peakSize, b.size);
     burst(p.x, p.y, p.gold ? 24 : 10, p.gold ? 260 : 160, p.gold ? goldC : fire, 0.5);
-    floater('+' + gain, p.x, p.y - 20, p.gold ? '#ffe08a' : '#ffb347', p.gold ? 30 : 20);
+    floater('+' + gain, p.x, p.y - 20, p.gold ? '#ffe08a' : '#e8a35a', p.gold ? 30 : 20);
     if (p.gold) Audio.gold(); else Audio.ember(g.streak);
   }
 
@@ -557,12 +567,16 @@
     }
 
     for (const p of g.pickups) {
-      const pulse = 1 + Math.sin(g.t * 6 + p.phase) * 0.2, rr = p.r * 2.4 * pulse;
-      const gr = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, rr);
-      if (p.gold) { gr.addColorStop(0, 'rgba(255,250,200,0.95)'); gr.addColorStop(0.4, 'rgba(255,215,80,0.7)'); gr.addColorStop(1, 'rgba(255,200,0,0)'); }
-      else { gr.addColorStop(0, 'rgba(255,220,120,0.9)'); gr.addColorStop(0.4, 'rgba(255,140,40,0.6)'); gr.addColorStop(1, 'rgba(255,90,0,0)'); }
-      ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, 6.28); ctx.fill();
-      ctx.fillStyle = p.gold ? '#fff8d0' : '#ffe08a'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.6 * pulse, 0, 6.28); ctx.fill();
+      if (COIN.ready) {
+        if (p.gold) {
+          const rr = p.r * 2.6, gr = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, rr);
+          gr.addColorStop(0, 'rgba(255,240,170,0.8)'); gr.addColorStop(1, 'rgba(255,200,0,0)');
+          ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, 6.28); ctx.fill();
+        }
+        drawCoin(p.x, p.y, p.r * (p.gold ? 3.4 : 2.9), g.t, p.phase);
+      } else {
+        ctx.fillStyle = p.gold ? '#fff8d0' : '#d98c3a'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill();
+      }
     }
 
     for (const p of g.particles) { ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (p.life / p.max), 0, 6.28); ctx.fill(); }
@@ -584,7 +598,7 @@
 
     if (g.phase !== 'results' && g.bird.alive && g.bird.grace > 0) {
       ctx.fillStyle = 'rgba(255,230,140,0.9)'; ctx.font = 'bold 20px system-ui'; ctx.textAlign = 'center';
-      ctx.fillText('SECOND WIND  2x embers  ' + g.bird.grace.toFixed(1), W / 2, 110);
+      ctx.fillText('SECOND WIND  2x coins  ' + g.bird.grace.toFixed(1), W / 2, 110);
     }
     if (g.flash > 0) { ctx.fillStyle = `rgba(${g.flashColor},${g.flash * 0.35})`; ctx.fillRect(-20, -20, W + 40, H + 40); }
     ctx.restore();

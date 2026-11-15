@@ -35,12 +35,12 @@ Open http://localhost:8000. Double-clicking `index.html` also works.
 
 ## How scoring works
 
-- Score comes mostly from embers. Each ember is worth `10 × size × heat`.
-- Golden embers are rare and worth `60 × size × heat`, and grow you three times as much.
-- Size grows with every ember up to 2.6x. Bigger means more points but a bigger hitbox and less agility.
+- Score comes mostly from bronze coins. Each coin is worth `10 × size × heat`.
+- Golden coins are rare and worth `60 × size × heat`, and grow you three times as much.
+- Size grows with every coin up to 2.6x. Bigger means more points but a bigger hitbox and less agility.
 - Distance adds a small trickle.
 - Crashing resets size to 0.55x and starts a 1.5 second rebirth. On rebirth, Heat goes up by 0.5 and world speed increases.
-- After rebirth you get 2.5 seconds of Second Wind: invulnerable, embers are pulled toward you, and embers pay double.
+- After rebirth you get 2.5 seconds of Second Wind: invulnerable, coins are pulled toward you, and coins pay double.
 - Best score is saved in the browser.
 
 ## Tuning
@@ -71,3 +71,5 @@ time can all be changed there without touching game logic.
   [OpenGameArt](https://opengameart.org/content/animated-lava-16x32).
 - Lava eruptions: "Free Flame Effects Sprite Pack" by CraftPix.net, freebie license, from
   [CraftPix](https://craftpix.net/freebies/free-flame-effects-sprite-pack/).
+- Coins: "Pixel Coins" by TotusLotus, free for personal and commercial use, from
+  [itch.io](https://totuslotus.itch.io/pixel-coins).

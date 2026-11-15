@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>Phoenix Run</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
 <div id="wrap">
@@ -13,7 +13,7 @@
   <div id="hud" hidden>
     <div class="hud-left">
       <div class="stat"><span class="label">SCORE</span><b id="hud-score">0</b></div>
-      <div class="stat small"><span class="label">EMBERS</span><b id="hud-embers">0</b></div>
+      <div class="stat small"><span class="label">COINS</span><b id="hud-embers">0</b></div>
     </div>
     <div class="hud-center">
       <div id="timer-bar"><div id="timer-fill"></div></div>
@@ -30,7 +30,7 @@
     <div class="tag">You cannot lose. You can only come back.</div>
     <div class="rules">
       <p>Fly through the volcano for <b>90 seconds</b> and score as high as you can.</p>
-      <p>Collect <span class="ember">embers</span> to grow. A bigger phoenix is worth more points but is easier to hit.</p>
+      <p>Collect <span class="ember">bronze coins</span> to grow. A bigger phoenix is worth more points but is easier to hit.</p>
       <p><span class="hot">Crashing never ends the run.</span> You burn, and a moment later you rise again: smaller, faster, and hotter. Every rebirth raises your <b>Heat</b> multiplier.</p>
     </div>
     <div class="controls">
@@ -39,7 +39,7 @@
       <div class="muted"><span class="key">P</span> pause &nbsp; <span class="key">M</span> mute</div>
     </div>
     <div id="best-line" class="best"></div>
-    <div class="muted credit">Phoenix sprite by Chasersgaming (CC0, OpenGameArt) · Cave backgrounds by Admurin (itch.io) · Obstacles by Game Developer Studio (CC-BY 4.0) · Flame effects by CraftPix.net</div>
+    <div class="muted credit">Phoenix sprite by Chasersgaming (CC0, OpenGameArt) · Cave backgrounds by Admurin (itch.io) · Obstacles by Game Developer Studio (CC-BY 4.0) · Flame effects by CraftPix.net · Coins by TotusLotus (itch.io)</div>
     <button id="start-btn" class="go">PRESS SPACE OR TAP TO FLY</button>
   </div>
 
@@ -49,7 +49,7 @@
     <div id="res-best" class="best"></div>
     <div class="grid">
       <div><span class="label">Distance</span><b id="res-dist">0 m</b></div>
-      <div><span class="label">Embers</span><b id="res-embers">0</b></div>
+      <div><span class="label">Coins</span><b id="res-embers">0</b></div>
       <div><span class="label">Rebirths</span><b id="res-rebirths">0</b></div>
       <div><span class="label">Peak size</span><b id="res-size">1.0x</b></div>
       <div><span class="label">Peak heat</span><b id="res-heat">x1.0</b></div>
@@ -64,6 +64,6 @@
     <div class="muted">Press P to resume</div>
   </div>
 </div>
-<script src="game.js"></script>
+<script src="game.js?v=21"></script>
 </body>
 </html>

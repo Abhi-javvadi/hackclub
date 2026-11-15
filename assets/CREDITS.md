@@ -26,3 +26,7 @@
   Source: https://craftpix.net/freebies/free-flame-effects-sprite-pack/
   License: CraftPix freebie license (https://craftpix.net/file-licenses/), free for personal and
   commercial games, modification allowed, no attribution required. Frames cropped and downscaled.
+
+- `coins/coin_16x16.png` — "Pixel Coins" by TotusLotus, coin2 strip (fourteen 16x16 frames).
+  Source: https://totuslotus.itch.io/pixel-coins
+  Used unmodified as the collectible pickup.
