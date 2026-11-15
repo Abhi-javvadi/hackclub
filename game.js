@@ -94,9 +94,9 @@
   }
 
   // Bottom eruptions: "Free Flame Effects Sprite Pack" by CraftPix.net (freebie license: free for
-  // personal and commercial games, modification allowed, credit appreciated). Effect flame1, 28 frames,
-  // cropped to the shared bounding box and downscaled to 320x249. Bursts rise out of the lava.
-  const ERUPTION = { frames: [], fps: 18, ready: false, loaded: 0, count: 28, timer: 2 + Math.random() * 3 };
+  // personal and commercial games, modification allowed, credit appreciated). Effect flame8, 34 frames:
+  // a flame that rises and splits into two tongues. Cropped to the shared bounding box, downscaled to 192 wide.
+  const ERUPTION = { frames: [], fps: 20, ready: false, loaded: 0, count: 34, timer: 2 + Math.random() * 3 };
   for (let i = 0; i < ERUPTION.count; i++) {
     const im = new Image();
     im.onload = () => { if (++ERUPTION.loaded === ERUPTION.count) ERUPTION.ready = true; };
@@ -105,7 +105,7 @@
   }
   function spawnEruption() {
     if (!ERUPTION.ready || ERUPTION.frames.length === 0) return;
-    const im = ERUPTION.frames[0], scale = 1.1 + Math.random() * 0.8;
+    const im = ERUPTION.frames[0], scale = 0.55 + Math.random() * 0.3;   // small bursts, roughly a sixth of screen height
     const w = im.width * scale, h = im.height * scale;
     game.eruptions.push({ x: W / 2 + (Math.random() - 0.5) * (W - 200), w, h, t: 0, dur: ERUPTION.frames.length / ERUPTION.fps });
   }
