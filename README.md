@@ -19,7 +19,7 @@ Open http://localhost:8000. Double-clicking `index.html` also works.
 
 - `index.html` markup for the canvas, HUD, title, results, and pause screens
 - `style.css` all styling
-- `game.js` the whole game: config, input, update loop, rendering. No audio.
+- `game.js` the whole game: config, input, update loop, rendering. The only sound is one dragon roar when the finale begins.
 - `assets/` sprite sheet and credits
 - `prototypes/` earlier throwaway builds (Phoenix v0 and the Knockdown idea)
 
@@ -85,3 +85,4 @@ from two to four shots, come more often, and fly faster as the clock runs down. 
 - Finale dragon: "Shadow Demon Dragon" by Vinzes, free for commercial use, from
   [itch.io](https://vinzes.itch.io/epic-2d-pixel-art-shadow-demon-dragon-with-10-animations-sfx).
 - Fireball: "Fireball Effect" by NYKNCK, from [itch.io](https://nyknck.itch.io/pixelarteffectfx017).
+- Dragon roar: "Epic Dragon Roar" by Dragon Studio (Pixabay).

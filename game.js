@@ -164,7 +164,14 @@
   // ---------------------------------------------------------------- audio
   // The game is silent by decision. Every call site still goes through this object so sound can be
   // reintroduced later without touching game logic.
-  const Audio = { unlock() {}, toggleMute() { return true; }, muted: true, ember() {}, gold() {}, crash() {}, rebirth() {}, tick() {}, roar() {}, finish() {} };
+  // The one exception is a single dragon roar that plays when the dragon enters for the finale.
+  const roarEl = new window.Audio('assets/audio/dragon_roar.mp3'); roarEl.volume = 0.7; roarEl.preload = 'auto';
+  const Audio = {
+    unlock() { try { roarEl.load(); } catch {} },     // a user gesture has happened by now, so later playback is allowed
+    toggleMute() { return true; }, muted: true,
+    ember() {}, gold() {}, crash() {}, rebirth() {}, tick() {}, finish() {},
+    roar() { try { roarEl.currentTime = 0; roarEl.play().catch(() => {}); } catch {} },
+  };
 
   // ---------------------------------------------------------------- input
   const input = { up: false, down: false, hold: false };
