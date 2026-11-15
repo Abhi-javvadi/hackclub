@@ -72,6 +72,14 @@
     ctx.drawImage(layer.im, W - shift, 0, W, H);
   }
 
+  // Obstacles: "2d obstacle collection" by Game Developer Studio (Robert Brooks), CC-BY 4.0, OpenGameArt.
+  // Ground spikes, hanging spike blocks on chains, and rotating saw blades. The chain is the pack's own
+  // chain piece repeated end to end at draw time, so longer chains never need new artwork.
+  const TRAPS = { names: ['spikes_1', 'spikes_2', 'block_1', 'block_2', 'chain', 'blade_1', 'blade_2', 'blade_3'], img: {}, loaded: 0,
+    get ready() { return this.loaded === this.names.length; } };
+  for (const n of TRAPS.names) { const im = new Image(); im.onload = () => { TRAPS.loaded++; }; im.src = `assets/traps/${n}.png`; TRAPS.img[n] = im; }
+  const CHAIN_ASPECT = 440 / 54, CHAIN_OVERLAP = 0.12;   // links overlap slightly so the seam between pieces hides
+
   // ---------------------------------------------------------------- audio (synthesized, no files)
   const Audio = (() => {
     let ac = null, muted = false, master;
@@ -170,20 +178,31 @@
 
   function spawnObstacle() {
     const g = game, r = Math.random(), tier = Math.min(1, g.t / 60);
-    if (r < 0.38) {
-      const h = 110 + Math.random() * (240 + 80 * tier);
-      g.obstacles.push({ type: 'spike', x: W + 80, y: GROUND - h, w: 64 + Math.random() * 40, h, up: true });
+    if (r < 0.36) {
+      // ground spike cluster
+      const variant = Math.random() < 0.5 ? 'spikes_1' : 'spikes_2';
+      const w = 120 + Math.random() * (90 + tier * 40);
+      const h = w * 0.6 * (1 + Math.random() * 0.6 + tier * 0.35);
+      g.obstacles.push({ type: 'spikes', variant, x: W + 80, y: GROUND - h + 4, w, h });
     } else if (r < 0.7) {
-      const h = 110 + Math.random() * (240 + 80 * tier);
-      g.obstacles.push({ type: 'spike', x: W + 80, y: 0, w: 64 + Math.random() * 40, h, up: false });
+      // spike block hanging from the ceiling on a chain
+      const variant = Math.random() < 0.5 ? 'block_1' : 'block_2';
+      const bw = 92 + Math.random() * 56;
+      const bh = bw * (variant === 'block_1' ? 320 / 284 : 320 / 267);
+      const chain = 30 + Math.random() * (210 + tier * 90);
+      const cw = Math.max(26, bw * 0.24);
+      g.obstacles.push({ type: 'hang', variant, x: W + 80, y: 0, w: bw, h: chain + bh, bw, bh, chain, cw,
+        phase: Math.random() * 6.28, sway: 0.08 + Math.random() * 0.08, cx: 0, cy: 0 });
     } else if (r < 0.88) {
-      const s = 64 + Math.random() * 56;
-      g.obstacles.push({ type: 'boulder', x: W + 80, y: 110 + Math.random() * (GROUND - 220 - s), w: s, h: s, spin: Math.random() * 6.28, spinV: (Math.random() - 0.5) * 2 });
+      // rotating saw blade
+      const s = 76 + Math.random() * 60;
+      g.obstacles.push({ type: 'blade', variant: 'blade_' + (1 + Math.floor(Math.random() * 3)), x: W + 80, y: 110 + Math.random() * (GROUND - 220 - s), w: s, h: s,
+        spin: Math.random() * 6.28, spinV: (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 3) });
     } else {
       // storm crow: weaves vertically
       const s = 48;
-      g.obstacles.push({ type: 'crow', x: W + 80, y: 140 + Math.random() * (GROUND - 320), w: s, h: s, baseY: 0, phase: Math.random() * 6.28, amp: 70 + Math.random() * 60, extraSpeed: 90 + tier * 80 });
-      g.obstacles[g.obstacles.length - 1].baseY = g.obstacles[g.obstacles.length - 1].y;
+      const o = { type: 'crow', x: W + 80, y: 140 + Math.random() * (GROUND - 320), w: s, h: s, baseY: 0, phase: Math.random() * 6.28, amp: 70 + Math.random() * 60, extraSpeed: 90 + tier * 80 };
+      o.baseY = o.y; g.obstacles.push(o);
     }
   }
   function spawnEmber() {
@@ -235,7 +254,12 @@
     for (const o of g.obstacles) {
       o.x -= (g.speed + (o.extraSpeed || 0)) * dt;
       if (o.type === 'crow') { o.phase += dt * 3; o.y = o.baseY + Math.sin(o.phase) * o.amp; }
-      if (o.type === 'boulder') o.spin += o.spinV * dt;
+      if (o.type === 'blade') o.spin += o.spinV * dt;
+      if (o.type === 'hang') {
+        o.phase += dt * 1.7;
+        const ang = Math.sin(o.phase) * o.sway, len = o.chain + o.bh * 0.5;
+        o.cx = o.x + o.w / 2 + Math.sin(ang) * len; o.cy = Math.cos(ang) * len; o.ang = ang;
+      }
     }
     for (const p of g.pickups) p.x -= g.speed * dt;
     g.obstacles = g.obstacles.filter(o => o.x + o.w > -40);
@@ -275,17 +299,17 @@
       const hb = radius * 0.78;
       if (b.grace <= 0) {
         for (const o of g.obstacles) {
-          let hit;
-          if (o.type === 'spike') {
-            // triangle approx: test against center line narrowing toward tip
-            const cx = o.x + o.w / 2, tipY = o.up ? o.y : o.h, baseY = o.up ? GROUND : 0;
-            const frac = Math.min(1, Math.max(0, (b.y - tipY) / (baseY - tipY)));
-            const halfW = (o.w / 2) * frac;
-            const within = o.up ? b.y + hb > tipY : b.y - hb < tipY;
-            hit = within && Math.abs(b.x - cx) < halfW + hb * 0.8;
+          let hit = false;
+          if (o.type === 'spikes') {
+            // box with a forgiving inset; the tips are the top quarter
+            const x0 = o.x + o.w * 0.08, x1 = o.x + o.w * 0.92, y0 = o.y + o.h * 0.22;
+            const cx = Math.max(x0, Math.min(b.x, x1)), cy = Math.max(y0, Math.min(b.y, GROUND));
+            hit = Math.hypot(cx - b.x, cy - b.y) < hb;
+          } else if (o.type === 'hang') {
+            hit = Math.hypot(o.cx - b.x, o.cy - b.y) < hb + o.bw * 0.44;   // the block is lethal, the chain is not
           } else {
             const cx = o.x + o.w / 2, cy = o.y + o.h / 2;
-            hit = Math.hypot(cx - b.x, cy - b.y) < hb + o.w / 2 * 0.9;
+            hit = Math.hypot(cx - b.x, cy - b.y) < hb + o.w / 2 * 0.86;
           }
           if (hit) { crash(); break; }
         }
@@ -450,17 +474,25 @@
     }
 
     for (const o of g.obstacles) {
-      if (o.type === 'spike') {
-        ctx.fillStyle = '#4a2a35'; ctx.beginPath();
-        if (o.up) { ctx.moveTo(o.x, GROUND); ctx.lineTo(o.x + o.w, GROUND); ctx.lineTo(o.x + o.w / 2, o.y); }
-        else { ctx.moveTo(o.x, 0); ctx.lineTo(o.x + o.w, 0); ctx.lineTo(o.x + o.w / 2, o.h); }
-        ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#7a4a5c'; ctx.lineWidth = 3; ctx.stroke();
-      } else if (o.type === 'boulder') {
+      if (o.type === 'spikes') {
+        if (TRAPS.ready) { ctx.imageSmoothingEnabled = true; ctx.drawImage(TRAPS.img[o.variant], o.x, o.y, o.w, o.h); }
+        else { ctx.fillStyle = '#4a2a35'; ctx.fillRect(o.x, o.y, o.w, o.h); }
+      } else if (o.type === 'hang') {
+        ctx.save(); ctx.translate(o.x + o.w / 2, 0); ctx.rotate(o.ang || 0);
+        if (TRAPS.ready) {
+          ctx.imageSmoothingEnabled = true;
+          // chain: repeat the single chain piece downward until it reaches the block's hook
+          const ph = o.cw * CHAIN_ASPECT, step = ph * (1 - CHAIN_OVERLAP);
+          ctx.save(); ctx.beginPath(); ctx.rect(-o.cw, -10, o.cw * 2, o.chain + 12); ctx.clip();
+          for (let yy = -6; yy < o.chain + 2; yy += step) ctx.drawImage(TRAPS.img.chain, -o.cw / 2, yy, o.cw, ph);
+          ctx.restore();
+          ctx.drawImage(TRAPS.img[o.variant], -o.bw / 2, o.chain - 2, o.bw, o.bh);
+        } else { ctx.fillStyle = '#4a2a35'; ctx.fillRect(-3, 0, 6, o.chain); ctx.fillRect(-o.bw / 2, o.chain, o.bw, o.bh); }
+        ctx.restore();
+      } else if (o.type === 'blade') {
         ctx.save(); ctx.translate(o.x + o.w / 2, o.y + o.h / 2); ctx.rotate(o.spin);
-        ctx.fillStyle = '#4a2a35'; ctx.beginPath();
-        for (let i = 0; i < 8; i++) { const a = i / 8 * 6.28, rr = o.w / 2 * (0.85 + ((i * 7) % 3) * 0.07); ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
-        ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#7a4a5c'; ctx.lineWidth = 3; ctx.stroke();
-        ctx.fillStyle = '#6a3e4d'; ctx.beginPath(); ctx.arc(-o.w * 0.15, -o.h * 0.15, o.w * 0.14, 0, 6.28); ctx.fill();
+        if (TRAPS.ready) { ctx.imageSmoothingEnabled = true; ctx.drawImage(TRAPS.img[o.variant], -o.w / 2, -o.h / 2, o.w, o.h); }
+        else { ctx.fillStyle = '#9aa3a8'; ctx.beginPath(); ctx.arc(0, 0, o.w / 2, 0, 6.28); ctx.fill(); }
         ctx.restore();
       } else {
         const cx = o.x + o.w / 2, cy = o.y + o.h / 2, fl = Math.sin(o.phase * 4) * 10;

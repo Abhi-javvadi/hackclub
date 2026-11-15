@@ -51,8 +51,9 @@ time can all be changed there without touching game logic.
 
 ## Hazards
 
-- Ground and ceiling spikes
-- Spinning boulders
+- Ground spike clusters
+- Spike blocks hanging from the ceiling on swaying chains. The block is lethal, the chain is not.
+- Rotating saw blades
 - Storm crows that weave up and down and move faster than the world
 
 ## Credits
@@ -62,3 +63,6 @@ time can all be changed there without touching game logic.
   The sheet has fly, death, and reborn rows, and the game uses all three.
 - Cave backdrop: "Parallax Backgrounds: Caves" by Admurin, free for any project, from
   [itch.io](https://admurin.itch.io/parallax-backgrounds-caves). Seven layers scroll at different speeds.
+- Obstacles: "2d obstacle collection" by Game Developer Studio, CC-BY 4.0, from
+  [OpenGameArt](https://opengameart.org/content/2d-obstacle-collection). Chains are the pack's
+  chain piece tiled at draw time.
