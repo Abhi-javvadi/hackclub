@@ -33,13 +33,13 @@
 
   const $ = id => document.getElementById(id);
   const ui = {
-    hud: $('hud'), score: $('hud-score'), embers: $('hud-embers'), heat: $('hud-heat'), rebirths: $('hud-rebirths'),
+    hud: $('hud'), score: $('hud-score'), embers: $('hud-embers'), rebirths: $('hud-rebirths'),
     time: $('hud-time'), timerFill: $('timer-fill'), hearts: [...document.querySelectorAll('#hud-lives .heart')],
     resHeading: $('res-heading'),
     title: $('title'), results: $('results'), paused: $('paused'), bestLine: $('best-line'),
     startBtn: $('start-btn'), againBtn: $('again-btn'),
     resScore: $('res-score'), resBest: $('res-best'), resDist: $('res-dist'), resEmbers: $('res-embers'),
-    resRebirths: $('res-rebirths'), resSize: $('res-size'), resHeat: $('res-heat'), resStreak: $('res-streak'), resTitle: $('res-title'),
+    resRebirths: $('res-rebirths'), resSize: $('res-size'), resStreak: $('res-streak'), resTitle: $('res-title'),
   };
 
   // ---------------------------------------------------------------- sprites
@@ -429,7 +429,7 @@
     g.flash = 0.9; g.flashColor = '255,200,80';
     g.obstacles = g.obstacles.filter(o => o.x > b.x + 260 || o.x + o.w < b.x - 80);
     burst(b.x, b.y, 90, 340, goldC, 1.0);
-    floater('REBORN  heat x' + g.heat.toFixed(1), b.x + 40, b.y - 70, '#ffe08a', 30);
+    floater('REBORN', b.x + 40, b.y - 70, '#ffe08a', 30);
     Audio.rebirth();
   }
 
@@ -447,7 +447,6 @@
     ui.resEmbers.textContent = g.embers;
     ui.resRebirths.textContent = g.rebirths;
     ui.resSize.textContent = g.peakSize.toFixed(1) + 'x';
-    ui.resHeat.textContent = 'x' + g.peakHeat.toFixed(1);
     ui.resStreak.textContent = g.bestStreak;
     ui.resTitle.textContent = rankTitle(g);
     ui.results.hidden = false; ui.hud.hidden = true;
@@ -467,7 +466,6 @@
     const g = game;
     ui.score.textContent = Math.round(g.score).toLocaleString();
     ui.embers.textContent = g.embers;
-    ui.heat.textContent = 'x' + g.heat.toFixed(1);
     ui.rebirths.textContent = g.rebirths;
     ui.hearts.forEach((el, i) => el.classList.toggle('lost', i >= g.lives));
     const tl = Math.max(0, g.timeLeft);
