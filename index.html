@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap">
-<link rel="stylesheet" href="style.css?v=42">
+<link rel="stylesheet" href="style.css?v=43">
 </head>
 <body>
 <div id="wrap">
@@ -29,34 +29,41 @@
   </div>
 
   <div id="title" class="screen">
-    <div class="logo">PHOENIX RUN</div>
-    <div class="rules">
-      <p>Fly for <b>90 seconds</b>. Score as high as you can.</p>
-      <p>Collect <span class="ember">coins</span> to grow. Bigger scores more but is easier to hit.</p>
-      <p><span class="hot">Five lives.</span> Crash and you rise again, smaller and faster.</p>
+    <div class="panel">
+      <div class="logo">PHOENIX RUN</div>
+      <ul class="rules">
+        <li>Fly for 90 seconds. Score as high as you can.</li>
+        <li>Coins make you grow. Bigger is worth more but easier to hit.</li>
+        <li>Five lives. Crash and you come back smaller and faster.</li>
+      </ul>
+      <table class="keys">
+        <tr><td>W / ↑</td><td>rise</td></tr>
+        <tr><td>S / ↓</td><td>dive</td></tr>
+        <tr><td>SPACE</td><td>start</td></tr>
+        <tr><td>P</td><td>pause</td></tr>
+        <tr><td>M</td><td>mute</td></tr>
+        <tr><td>R</td><td>restart</td></tr>
+        <tr><td>TOUCH</td><td>hold to rise</td></tr>
+      </table>
+      <button id="start-btn" class="go">PRESS SPACE OR TAP TO FLY</button>
+      <div class="credit">Art: Chasersgaming, Admurin, Game Developer Studio, CraftPix, TotusLotus, AXIALE, Vinzes, NYKNCK.<br>Fonts: Silkscreen by Jason Kottke, VT323 by Peter Hull.</div>
     </div>
-    <div class="controls">
-      <div><span class="key">W</span><span class="key">↑</span> rise &nbsp; <span class="key">S</span><span class="key">↓</span> dive</div>
-      <div><span class="key">SPACE</span> start &nbsp; <span class="key">P</span> pause &nbsp; <span class="key">M</span> mute &nbsp; <span class="key">R</span> restart</div>
-      <div class="muted">Touch or mouse: hold to rise</div>
-    </div>
-    <button id="start-btn" class="go">PRESS SPACE OR TAP TO FLY</button>
-    <div class="muted credit">Art: Chasersgaming · Admurin · Game Developer Studio · CraftPix · TotusLotus · AXIALE · Vinzes · NYKNCK<br>Fonts: Silkscreen by Jason Kottke · VT323 by Peter Hull</div>
   </div>
 
   <div id="results" class="screen" hidden>
-    <div id="res-heading" class="logo small">RUN COMPLETE</div>
-    <div class="final"><span class="label">FINAL SCORE</span><b id="res-score">0</b></div>
-    <div id="res-best" class="best"></div>
-    <div class="grid">
-      <div><span class="label">Distance</span><b id="res-dist">0 m</b></div>
-      <div><span class="label">Coins</span><b id="res-embers">0</b></div>
-      <div><span class="label">Rebirths</span><b id="res-rebirths">0</b></div>
-      <div><span class="label">Peak size</span><b id="res-size">1.0x</b></div>
-      <div><span class="label">Best streak</span><b id="res-streak">0</b></div>
+    <div class="panel">
+      <div id="res-heading" class="logo small">TIME'S UP</div>
+      <div class="final"><span id="res-score">0</span><span id="res-best" class="best"></span></div>
+      <table class="stats">
+        <tr><td>Distance</td><td id="res-dist">0 m</td></tr>
+        <tr><td>Coins</td><td id="res-embers">0</td></tr>
+        <tr><td>Rebirths</td><td id="res-rebirths">0</td></tr>
+        <tr><td>Peak size</td><td id="res-size">1.0x</td></tr>
+        <tr><td>Best streak</td><td id="res-streak">0</td></tr>
+      </table>
+      <p id="res-title" class="rank"></p>
+      <button id="again-btn" class="go">PLAY AGAIN</button>
     </div>
-    <div id="res-title" class="rank"></div>
-    <button id="again-btn" class="go">PLAY AGAIN</button>
   </div>
 
   <div id="paused" class="screen" hidden>
@@ -64,6 +71,6 @@
     <div class="muted">Press P to resume</div>
   </div>
 </div>
-<script src="game.js?v=41"></script>
+<script src="game.js?v=42"></script>
 </body>
 </html>

@@ -528,12 +528,12 @@
     const g = game;
     g.phase = 'results';
     g.over = reason === 'lives';
-    ui.resHeading.textContent = g.over ? 'OUT OF LIVES' : 'RUN COMPLETE';
+    ui.resHeading.textContent = g.over ? 'GAME OVER' : "TIME'S UP";
     const score = Math.round(g.score), best = loadBest();
     const isBest = score > best;
     if (isBest) saveBest(score);
     ui.resScore.textContent = score.toLocaleString();
-    ui.resBest.textContent = isBest ? 'NEW BEST!' : 'Best ' + best.toLocaleString();
+    ui.resBest.textContent = isBest ? 'new best' : 'best ' + best.toLocaleString();
     ui.resDist.textContent = Math.round(g.dist).toLocaleString() + ' m';
     ui.resEmbers.textContent = g.embers;
     ui.resRebirths.textContent = g.rebirths;
@@ -544,13 +544,13 @@
     Audio.finish();
   }
   function rankTitle(g) {
-    if (g.over) return 'BURNED OUT. Five falls is all the cave allows.';
-    if (g.rebirths === 0) return 'UNTOUCHED. But you never got hotter.';
-    if (g.rebirths >= 8) return 'ETERNAL FLAME. Nothing keeps you down.';
-    if (g.peakSize >= 2.2) return 'INFERNO. You grew into something huge.';
-    if (g.bestStreak >= 25) return 'UNBROKEN STREAK. Precision flying.';
-    if (g.rebirths >= 4) return 'PHOENIX. Every fall made you stronger.';
-    return 'RISING. Keep coming back.';
+    if (g.over) return 'Out of lives. The cave keeps the rest.';
+    if (g.rebirths === 0) return 'Not one crash. Try growing bigger next time.';
+    if (g.rebirths >= 8) return 'Eight rebirths. Hard to keep down.';
+    if (g.peakSize >= 2.2) return 'That was a very large bird.';
+    if (g.bestStreak >= 25) return 'Twenty-five coins without a miss.';
+    if (g.rebirths >= 4) return 'Fell four times. Got up four times.';
+    return 'Not bad. Go again.';
   }
 
   function updateHud() {
