@@ -1,37 +1,55 @@
-# Hack Haven NYC 2026
+# Phoenix Run
 
-Theme: **Bounce Back**. Two browser game prototypes, each a single HTML file with
-no dependencies.
+Hack Haven NYC 2026. Theme: **Bounce Back**.
 
-## Run
+A 90-second canvas flyer where crashing never ends the run. You burn, rise
+again smaller and faster, and every rebirth raises your Heat multiplier.
+Plain HTML, CSS, and JavaScript. No build step, no dependencies.
+
+## Run it
 
 ```bash
 python3 -m http.server 8000
 ```
 
-- Phoenix Run: http://localhost:8000/index.html
-- Knockdown: http://localhost:8000/knockdown.html
+Open http://localhost:8000. Double-clicking `index.html` also works.
 
-Or double-click either file to open it directly.
+## Files
 
-## Phoenix Run (`index.html`)
+- `index.html` markup for the canvas, HUD, title, results, and pause screens
+- `style.css` all styling
+- `game.js` the whole game: config, audio, input, update loop, rendering
+- `prototypes/` earlier throwaway builds (Phoenix v0 and the Knockdown idea)
 
-Endless runner where crashing never ends the run. You burn, respawn seconds
-later smaller and faster, and rebuild your size by collecting embers.
+## Controls
 
-- `↑` / `W` rise, `↓` / `S` dive. `Space` start, `R` restart.
-- Embers grow you. Bigger scores more per ember but is a bigger target.
-- Each rebirth resets size to 0.55x, speeds up the world, and counts a comeback.
+| Action | Keys |
+| --- | --- |
+| Rise | `↑` or `W`, or hold touch / mouse |
+| Dive | `↓` or `S` |
+| Start / play again | `Space`, tap, or the button |
+| Pause | `P` |
+| Mute | `M` |
+| Restart mid-run | `R` |
 
-## Knockdown (`knockdown.html`)
+## How scoring works
 
-Arena brawler where every enemy hit floors you. The fight is getting back up.
+- Score comes mostly from embers. Each ember is worth `10 × size × heat`.
+- Golden embers are rare and worth `60 × size × heat`, and grow you three times as much.
+- Size grows with every ember up to 2.6x. Bigger means more points but a bigger hitbox and less agility.
+- Distance adds a small trickle.
+- Crashing resets size to 0.55x and starts a 1.5 second rebirth. On rebirth, Heat goes up by 0.5 and world speed increases.
+- After rebirth you get 2.5 seconds of Second Wind: invulnerable, embers are pulled toward you, and embers pay double.
+- Best score is saved in the browser.
 
-- `A` / `D` move. `Space` punch, and `Space` again to get up when down.
-- When floored, a marker sweeps a bar. Press in the green zone for a Perfect
-  Rise: a shockwave knocks enemies back and you get 3.5 seconds of rage.
-  Press outside the zone and you still get up, just slower.
-- Every comeback raises Grit. Grit increases damage, reach, speed, and get-up
-  speed. The marker gets faster each knockdown so timing gets harder.
-- Enemies stomp you while down, draining Resolve. Resolve at zero ends the run.
-- Rounds grow in size. Purple heavies appear from round 3.
+## Tuning
+
+Every number that matters is in the `CFG` object at the top of `game.js`.
+Run length, speed ramp, gravity, ember values, heat per rebirth, and grace
+time can all be changed there without touching game logic.
+
+## Hazards
+
+- Ground and ceiling spikes
+- Spinning boulders
+- Storm crows that weave up and down and move faster than the world
