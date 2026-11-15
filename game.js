@@ -157,6 +157,11 @@
   });
   const roarEl = new window.Audio('assets/dragon/roar.mp3'); roarEl.volume = 0.6;
 
+  // Dragon projectile: "Fireball Effect" by NYKNCK (itch.io), five 64x32 frames, drawn as shipped and
+  // rotated in code to face its direction of travel.
+  const FIREBALL = { frames: [], loaded: 0, fps: 14, scale: 1.7, get ready() { return this.loaded === 5; } };
+  for (let i = 1; i <= 5; i++) { const im = new Image(); im.onload = () => { FIREBALL.loaded++; }; im.src = `assets/fireball/fb_0${i}.png`; FIREBALL.frames.push(im); }
+
   // ---------------------------------------------------------------- audio (synthesized, no files)
   const Audio = (() => {
     let ac = null, muted = false, master;
@@ -241,7 +246,7 @@
     game = {
       phase: 'running', t: 0, timeLeft: CFG.runSeconds, lastTick: -1,
       score: 0, embers: 0, dist: 0, rebirths: 0, lives: CFG.lives, over: false,
-      finale: false, dragon: { x: W + 400, y: 0, anim: 0, attackT: -1, bob: 0, nextAttack: 1.2 }, heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
+      finale: false, dragon: { x: W + 400, y: 0, anim: 0, attackT: -1, bob: 0, nextAttack: 0.3 }, shots: [], heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
       speed: CFG.worldSpeed,
       bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, anim: 0, reborn: 0 },
       obstacles: [], pickups: [], particles: [], floaters: [], eruptions: [],
@@ -428,15 +433,52 @@
     Audio.roar();
   }
   function updateDragon(dt) {
-    const d = game.dragon;
+    const g = game, d = g.dragon, b = g.bird;
     d.anim += dt * 8; d.bob += dt;
-    d.x = Math.max(W - 340, d.x - 260 * dt);     // slides in from the right, then holds position
-    d.y = H * 0.42 + Math.sin(d.bob * 1.4) * 14;
+    d.x = Math.max(W - 340, d.x - 520 * dt);     // sweeps in from the right in about 1.4 s, then holds position
+    // tracks the phoenix vertically, with a little lag so it can be outmanoeuvred
+    const h = 256 * DRAGON.scale, target = Math.max(h * 0.5 + 30, Math.min(GROUND - h * 0.5 + 20, b.y));
+    d.y += (target - d.y) * Math.min(1, dt * 2.2) + Math.sin(d.bob * 1.4) * 0.4;
     if (d.attackT >= 0) { d.attackT += dt; if (d.attackT > 1.1) d.attackT = -1; }
-    else if (d.x <= W - 340) { d.nextAttack -= dt; if (d.nextAttack <= 0) { d.attackT = 0; d.nextAttack = 1.6 + Math.random() * 1.2; dragonFire(); } }
+    if (d.x <= W - 340) {
+      // the shot timer runs whether or not the attack animation is still playing
+      d.nextAttack -= dt;
+      if (d.nextAttack <= 0) {
+        d.attackT = 0;
+        // 1.4 s between shots at the 10 s mark, tightening to about 0.4 s at the end
+        const frac = Math.max(0, Math.min(1, g.timeLeft / CFG.finaleSeconds));
+        d.nextAttack = 0.4 + frac * 1.0 + Math.random() * 0.15;
+        dragonFire();
+      }
+    }
+    // projectiles
+    for (const sh of g.shots) { sh.x += sh.vx * dt; sh.y += sh.vy * dt; sh.t += dt; }
+    g.shots = g.shots.filter(sh => sh.x > -80 && sh.x < W + 80 && sh.y > -80 && sh.y < H + 80);
+    if (b.alive && b.grace <= 0) {
+      const hb = birdRadius() * 0.78;
+      for (const sh of g.shots) {
+        if (Math.hypot(sh.x - b.x, sh.y - b.y) < hb + 15) { g.shots = g.shots.filter(o => o !== sh); crash(); break; }
+      }
+    }
   }
   function dragonFire() {
-    // projectile hook: fired at the start of each attack animation. Filled in when the projectile asset arrives.
+    const g = game, d = g.dragon, b = g.bird;
+    const w = 506 * DRAGON.scale, h = 256 * DRAGON.scale;
+    const mx = d.x - w * 0.36, my = d.y - h * 0.2;          // the dragon's mouth, on its left-facing head
+    const ang = Math.atan2(b.y - my, b.x - mx);               // aimed at where the phoenix is right now
+    const speed = 380 + (CFG.finaleSeconds - Math.max(0, g.timeLeft)) * 22;
+    g.shots.push({ x: mx, y: my, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, ang, t: Math.random() });
+  }
+  function drawShots() {
+    if (!FIREBALL.ready) return;
+    const fw = 64 * FIREBALL.scale, fh = 32 * FIREBALL.scale;
+    for (const sh of game.shots) {
+      const im = FIREBALL.frames[Math.floor(sh.t * FIREBALL.fps) % 5];
+      ctx.save(); ctx.translate(sh.x, sh.y); ctx.rotate(sh.ang); ctx.scale(1, -1);   // sprite faces right; rotate to travel direction, unflip
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(im, -fw * 0.62, -fh / 2, fw, fh);   // core sits near the front of the sprite
+      ctx.restore();
+    }
   }
 
   function collect(p) {
@@ -616,7 +658,7 @@
       else { ctx.fillStyle = '#d98c3a'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }
     }
 
-    if (g.finale) drawDragon();
+    if (g.finale) { drawDragon(); drawShots(); }
 
     for (const p of g.particles) { ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (p.life / p.max), 0, 6.28); ctx.fill(); }
     ctx.globalAlpha = 1;
@@ -661,4 +703,5 @@
   })();
 
   window.__phoenix = () => game; // debug hook
+  window.__phoenixStep = (dt, n = 1) => { for (let i = 0; i < n && game.phase === 'running'; i++) update(dt); }; // debug: advance the sim without waiting on frames
 })();

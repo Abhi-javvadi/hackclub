@@ -53,9 +53,9 @@ time can all be changed there without touching game logic.
 ## Finale
 
 For the last 10 seconds all hazards stop spawning and any on screen are cleared.
-The shadow dragon enters from the right and holds position, playing its attack
-animation on a cycle. Its projectiles are wired through `dragonFire()` in
-`game.js` and are added separately.
+The shadow dragon sweeps in from the right, tracks the phoenix vertically, and
+fires NYKNCK's fireball at the phoenix's current position. Shots come faster and
+fly faster as the clock runs down. A fireball hit costs a life like any hazard.
 
 ## Hazards
 
@@ -85,3 +85,4 @@ animation on a cycle. Its projectiles are wired through `dragonFire()` in
   [itch.io](https://axiale.itch.io/2d-heart-assets).
 - Finale dragon: "Shadow Demon Dragon" by Vinzes, free for commercial use, from
   [itch.io](https://vinzes.itch.io/epic-2d-pixel-art-shadow-demon-dragon-with-10-animations-sfx).
+- Fireball: "Fireball Effect" by NYKNCK, from [itch.io](https://nyknck.itch.io/pixelarteffectfx017).

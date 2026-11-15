@@ -42,3 +42,9 @@
   but not required, no reselling or redistributing the asset files on their own.
   The game uses cropped and downscaled frames from Idle_Left and Attack_Left, plus the attack roar.
   The author discloses the sound effects as AI assisted. The dragon appears for the final seconds.
+
+- `fireball/` — "Fireball Effect – Magic Projectile Animation for 2D Games" by NYKNCK, five 64x32 frames.
+  Source: https://nyknck.itch.io/pixelarteffectfx017
+  The asset page states no generative AI was used. It does not print explicit license terms; the
+  files are used unmodified and rotated in code, with credit given. Confirm terms with the author
+  before any commercial release.
