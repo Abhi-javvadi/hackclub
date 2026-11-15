@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>Phoenix Run</title>
-<link rel="stylesheet" href="style.css?v=40">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap">
+<link rel="stylesheet" href="style.css?v=41">
 </head>
 <body>
 <div id="wrap">
@@ -27,20 +30,18 @@
 
   <div id="title" class="screen">
     <div class="logo">PHOENIX RUN</div>
-    <div class="tag">You cannot lose. You can only come back.</div>
     <div class="rules">
-      <p>Fly through the volcano for <b>90 seconds</b> and score as high as you can.</p>
-      <p>Collect <span class="ember">bronze coins</span> to grow. A bigger phoenix is worth more points but is easier to hit.</p>
-      <p><span class="hot">You have five lives.</span> Crash and you burn, then rise again: smaller, faster, and hotter. Lose all five and the run is over, whatever the clock says.</p>
+      <p>Fly for <b>90 seconds</b>. Score as high as you can.</p>
+      <p>Collect <span class="ember">coins</span> to grow. Bigger scores more but is easier to hit.</p>
+      <p><span class="hot">Five lives.</span> Crash and you rise again, smaller and faster.</p>
     </div>
     <div class="controls">
-      <div><span class="key">↑</span><span class="key">W</span> rise &nbsp; <span class="key">↓</span><span class="key">S</span> dive</div>
-      <div class="muted">Touch or mouse: hold to rise, release to fall</div>
-      <div class="muted"><span class="key">P</span> pause &nbsp; <span class="key">M</span> mute</div>
+      <div><span class="key">W</span><span class="key">↑</span> rise &nbsp; <span class="key">S</span><span class="key">↓</span> dive</div>
+      <div><span class="key">SPACE</span> start &nbsp; <span class="key">P</span> pause &nbsp; <span class="key">M</span> mute &nbsp; <span class="key">R</span> restart</div>
+      <div class="muted">Touch or mouse: hold to rise</div>
     </div>
-    <div id="best-line" class="best"></div>
-    <div class="muted credit">Phoenix sprite by Chasersgaming (CC0, OpenGameArt) · Cave backgrounds by Admurin (itch.io) · Obstacles by Game Developer Studio (CC-BY 4.0) · Flame effects by CraftPix.net · Coins by TotusLotus (itch.io) · Hearts by AXIALE (itch.io) · Shadow dragon by Vinzes (itch.io) · Fireball by NYKNCK (itch.io)</div>
     <button id="start-btn" class="go">PRESS SPACE OR TAP TO FLY</button>
+    <div class="muted credit">Art: Chasersgaming · Admurin · Game Developer Studio · CraftPix · TotusLotus · AXIALE · Vinzes · NYKNCK<br>Fonts: Silkscreen by Jason Kottke · VT323 by Peter Hull</div>
   </div>
 
   <div id="results" class="screen" hidden>
@@ -63,6 +64,6 @@
     <div class="muted">Press P to resume</div>
   </div>
 </div>
-<script src="game.js?v=40"></script>
+<script src="game.js?v=41"></script>
 </body>
 </html>

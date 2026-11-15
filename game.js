@@ -37,7 +37,7 @@
     hud: $('hud'), score: $('hud-score'), embers: $('hud-embers'), rebirths: $('hud-rebirths'),
     time: $('hud-time'), timerFill: $('timer-fill'), hearts: [...document.querySelectorAll('#hud-lives .heart')],
     resHeading: $('res-heading'),
-    title: $('title'), results: $('results'), paused: $('paused'), bestLine: $('best-line'),
+    title: $('title'), results: $('results'), paused: $('paused'),
     startBtn: $('start-btn'), againBtn: $('again-btn'),
     resScore: $('res-score'), resBest: $('res-best'), resDist: $('res-dist'), resEmbers: $('res-embers'),
     resRebirths: $('res-rebirths'), resSize: $('res-size'), resStreak: $('res-streak'), resTitle: $('res-title'),
@@ -677,15 +677,15 @@
       }
       ctx.textAlign = 'center';
       if (g.lives > 0) {
-        ctx.fillStyle = '#ffb347'; ctx.font = 'bold 44px system-ui'; ctx.fillText('REBIRTH IN ' + (Math.ceil(g.bird.deadTimer * 10) / 10).toFixed(1), W / 2, H / 2 - 40);
-        ctx.fillStyle = '#ffe9c7'; ctx.font = '22px system-ui'; ctx.fillText('Smaller. Faster. Hotter.', W / 2, H / 2);
+        ctx.fillStyle = '#ffb347'; ctx.font = '52px "VT323", monospace'; ctx.fillText('REBIRTH IN ' + (Math.ceil(g.bird.deadTimer * 10) / 10).toFixed(1), W / 2, H / 2 - 40);
+        ctx.fillStyle = '#ffe9c7'; ctx.font = '28px "VT323", monospace'; ctx.fillText('Smaller. Faster. Hotter.', W / 2, H / 2);
       } else {
-        ctx.fillStyle = '#ff6b4d'; ctx.font = 'bold 44px system-ui'; ctx.fillText('BURNED OUT', W / 2, H / 2 - 40);
-        ctx.fillStyle = '#ffe9c7'; ctx.font = '22px system-ui'; ctx.fillText('No lives left.', W / 2, H / 2);
+        ctx.fillStyle = '#ff6b4d'; ctx.font = '52px "VT323", monospace'; ctx.fillText('BURNED OUT', W / 2, H / 2 - 40);
+        ctx.fillStyle = '#ffe9c7'; ctx.font = '28px "VT323", monospace'; ctx.fillText('No lives left.', W / 2, H / 2);
       }
     }
 
-    for (const f of g.floaters) { ctx.globalAlpha = Math.min(1, f.life * 2); ctx.fillStyle = f.color; ctx.font = `bold ${f.size}px system-ui`; ctx.textAlign = 'center'; ctx.fillText(f.text, f.x, f.y); }
+    for (const f of g.floaters) { ctx.globalAlpha = Math.min(1, f.life * 2); ctx.fillStyle = f.color; ctx.font = `${Math.round(f.size * 1.2)}px "VT323", monospace`; ctx.textAlign = 'center'; ctx.fillText(f.text, f.x, f.y); }
     ctx.globalAlpha = 1;
 
     if (g.flash > 0) { ctx.fillStyle = `rgba(${g.flashColor},${g.flash * 0.35})`; ctx.fillRect(-20, -20, W + 40, H + 40); }
@@ -704,7 +704,6 @@
   (function boot() {
     startRun(); game.phase = 'title'; draw();
     ui.hud.hidden = true; ui.title.hidden = false;
-    const best = loadBest(); ui.bestLine.textContent = best ? 'BEST ' + best.toLocaleString() : '';
     requestAnimationFrame(frame);
   })();
 
