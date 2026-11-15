@@ -449,7 +449,7 @@
     g.finale = true;
     g.obstacles.length = 0;                     // the cave clears for the boss
     g.dragon.x = W + 400; g.dragon.y = H * 0.42;
-    Audio.bgmStop(0.5);
+    Audio.bgmStop();        // music cuts the instant the dragon arrives; only the roar plays from here
     Audio.roar();
   }
   function updateDragon(dt) {
