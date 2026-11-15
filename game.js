@@ -246,7 +246,7 @@
     game = {
       phase: 'running', t: 0, timeLeft: CFG.runSeconds, lastTick: -1,
       score: 0, embers: 0, dist: 0, rebirths: 0, lives: CFG.lives, over: false,
-      finale: false, dragon: { x: W + 400, y: 0, anim: 0, attackT: -1, bob: 0, nextAttack: 0.3 }, shots: [], heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
+      finale: false, dragon: { x: W + 400, y: 0, anim: 0, attackT: -1, bob: 0, nextAttack: 0.3, burst: 0, burstTimer: 0 }, shots: [], heat: 1, streak: 0, bestStreak: 0, peakSize: CFG.startSize, peakHeat: 1,
       speed: CFG.worldSpeed,
       bird: { x: CFG.birdX, y: H / 2, vy: 0, size: CFG.startSize, alive: true, deadTimer: 0, grace: 0, anim: 0, reborn: 0 },
       obstacles: [], pickups: [], particles: [], floaters: [], eruptions: [],
@@ -443,12 +443,18 @@
     if (d.x <= W - 340) {
       // the shot timer runs whether or not the attack animation is still playing
       d.nextAttack -= dt;
+      const frac = Math.max(0, Math.min(1, g.timeLeft / CFG.finaleSeconds));   // 1 at the start of the finale, 0 at the end
       if (d.nextAttack <= 0) {
         d.attackT = 0;
-        // 1.4 s between shots at the 10 s mark, tightening to about 0.4 s at the end
-        const frac = Math.max(0, Math.min(1, g.timeLeft / CFG.finaleSeconds));
-        d.nextAttack = 0.4 + frac * 1.0 + Math.random() * 0.15;
-        dragonFire();
+        // each attack is a burst of fireballs one after another: 2 at the start of the finale, up to 4 at the end
+        d.burst = 2 + Math.floor((1 - frac) * 2.4);
+        d.burstTimer = 0;
+        // about 1.0 s between bursts at the 10 s mark, tightening to about 0.35 s at the end
+        d.nextAttack = 0.35 + frac * 0.65 + Math.random() * 0.1;
+      }
+      if (d.burst > 0) {
+        d.burstTimer -= dt;
+        if (d.burstTimer <= 0) { dragonFire(); d.burst--; d.burstTimer = 0.14; }
       }
     }
     // projectiles
@@ -466,7 +472,7 @@
     const w = 506 * DRAGON.scale, h = 256 * DRAGON.scale;
     const mx = d.x - w * 0.36, my = d.y - h * 0.2;          // the dragon's mouth, on its left-facing head
     const ang = Math.atan2(b.y - my, b.x - mx);               // aimed at where the phoenix is right now
-    const speed = 380 + (CFG.finaleSeconds - Math.max(0, g.timeLeft)) * 22;
+    const speed = 520 + (CFG.finaleSeconds - Math.max(0, g.timeLeft)) * 34;   // 520 px/s rising to about 860
     g.shots.push({ x: mx, y: my, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, ang, t: Math.random() });
   }
   function drawShots() {
