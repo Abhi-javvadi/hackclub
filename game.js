@@ -585,10 +585,6 @@
     for (const f of g.floaters) { ctx.globalAlpha = Math.min(1, f.life * 2); ctx.fillStyle = f.color; ctx.font = `bold ${f.size}px system-ui`; ctx.textAlign = 'center'; ctx.fillText(f.text, f.x, f.y); }
     ctx.globalAlpha = 1;
 
-    if (g.phase !== 'results' && g.bird.alive && g.bird.grace > 0) {
-      ctx.fillStyle = 'rgba(255,230,140,0.9)'; ctx.font = 'bold 20px system-ui'; ctx.textAlign = 'center';
-      ctx.fillText('SECOND WIND  2x coins  ' + g.bird.grace.toFixed(1), W / 2, 110);
-    }
     if (g.flash > 0) { ctx.fillStyle = `rgba(${g.flashColor},${g.flash * 0.35})`; ctx.fillRect(-20, -20, W + 40, H + 40); }
     ctx.restore();
   }
